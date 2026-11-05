@@ -1,0 +1,41 @@
+{
+  "name": "ask-cogniva",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.15 <25"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n api,web \"npm run dev:api\" \"vite\"",
+    "dev:api": "node --env-file-if-exists=.env --import tsx --watch server/index.ts",
+    "start": "node --env-file-if-exists=.env --import tsx server/index.ts",
+    "build": "npm run typecheck && vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test server/*.test.ts",
+    "seed": "node --env-file-if-exists=.env --import tsx server/seed.ts",
+    "demo": "node scripts/demo.mjs",
+    "laya": "bash scripts/laya.sh"
+  },
+  "dependencies": {
+    "@firecrawl/anydoc": "0.1.7",
+    "@hono/node-server": "2.1.6",
+    "@openrouter/sdk": "1.5.56",
+    "better-auth": "1.7.18",
+    "hono": "4.13.16",
+    "pdf-lib": "1.17.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "typebox": "1.4.4"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.2.1",
+    "concurrently": "10.0.6",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vite": "8.3.6"
+  }
+}

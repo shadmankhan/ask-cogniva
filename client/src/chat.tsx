@@ -1,0 +1,82 @@
+import { Fragment, useState, type FormEvent } from "react";
+import { LIMITS, type Answer } from "../../shared/contracts.js";
+import { api } from "./api.js";
+
+function CitedAnswer({ answer, index }: { answer: Answer; index: number }) {
+  return <>
+    {answer.decision && <strong className="verdict">{answer.decision.verdict}</strong>}
+    {answer.text.split("\n\n").map((paragraph, p) => <p key={p}>
+      {paragraph.split(/(\[\[E\d+\]\])/g).map((part, i) => {
+        const ref = answer.references.find(ref => part === `[[${ref.id}]]`);
+        return ref ? <a key={i} className="citation" href={`#${index}-${ref.id}`} onClick={event => {
+          event.preventDefault();
+          document.getElementById(`${index}-${ref.id}`)?.scrollIntoView({ block: "nearest" });
+        }}>{ref.name} · p. {ref.page}</a> : <Fragment key={i}>{part}</Fragment>;
+      })}
+    </p>)}
+    {answer.references.length > 0 && <div className="sources">
+      {answer.references.map(ref => <blockquote key={ref.id} id={`${index}-${ref.id}`}>
+        <strong>{ref.name} · Page {ref.page}</strong><span>{ref.quote}</span>
+      </blockquote>)}
+    </div>}
+    {answer.decision && <details className="decision">
+      <summary>How Cogniva decided</summary>
+      <ul>{answer.decision.checks.map(check => <li key={check.label}>
+        <strong>{check.label}</strong><span>{check.method} · {check.result}
+          {check.score === undefined ? "" : ` · model output ${check.score.toFixed(2)}`}</span>
+      </li>)}</ul>
+    </details>}
+  </>;
+}
+
+export function Chat() {
+  const [token] = useState(() => new URLSearchParams(window.location.hash.slice(1)).get("token"));
+  const [question, setQuestion] = useState("");
+  const [messages, setMessages] = useState<{ question: string; answer: Answer }[]>([]);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function ask(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const asked = question.trim();
+    if (!asked || busy || !token) return;
+    setBusy(true);
+    setError("");
+    try {
+      const answer = await api<Answer>("/api/ask", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token, question: asked }),
+      });
+      setMessages(current => [...current, { question: asked, answer }]);
+      setQuestion("");
+    } catch (failure) {
+      setError(failure instanceof Error ? failure.message : "Unable to answer. Try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return <main className="chat-page">
+    <header className="chat-header"><span className="brand">Cogniva</span><span className="muted">Document assistant</span></header>
+    <div className="thread" aria-live="polite">
+      {!token ? <p className="error">Open a valid assistant link from your organization.</p> : <>
+        {messages.length === 0 && <div className="chat-intro">
+          <span className="eyebrow">ASK THE KNOWLEDGE BASE</span>
+          <h1>What would you like to know?</h1>
+          <p>Ask about the organization’s documents and check the cited pages behind each answer.</p>
+        </div>}
+        {messages.map((message, i) => <section className="turn" key={i}>
+          <p className="question">{message.question}</p>
+          <div className="response"><CitedAnswer answer={message.answer} index={i} /></div>
+        </section>)}
+        {busy && <p className="muted" role="status">Searching and preparing an answer…</p>}
+      </>}
+    </div>
+    {token && <form className="ask-box" onSubmit={ask}>
+      {error && <p className="error" role="alert">{error}</p>}
+      <label>Ask a question<textarea rows={2} value={question} maxLength={LIMITS.question} disabled={busy}
+        onChange={event => setQuestion(event.target.value)} placeholder="Ask about a policy, procedure, or decision…" required /></label>
+      <div className="ask-actions"><span className="muted">{question.length}/{LIMITS.question}</span>
+        <button className="primary" disabled={busy || !question.trim()}>{busy ? "Working…" : "Ask Cogniva"}</button></div>
+    </form>}
+  </main>;
+}
