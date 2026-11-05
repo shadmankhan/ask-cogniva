@@ -26,7 +26,7 @@ export interface DecisionCheck {
 }
 
 export interface Answer {
-  status: "answered" | "no_answer" | "needs_clarification";
+  status: "answered" | "no_answer" | "needs_clarification" | "acknowledged";
   text: string;
   references: Reference[];
   decision?: { verdict: "Conditions met" | "Conditions not met" | "Uncertain"; checks: DecisionCheck[] };

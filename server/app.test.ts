@@ -129,6 +129,34 @@ test("signup, tenant-isolated retrieval and file access, token rotation, and del
   assert.equal((await (await ask(newToken, question)).json() as Answer).status, "no_answer");
 });
 
+test("acknowledges standalone greetings and thanks without treating them as questions", async t => {
+  const { stub, request, organization, upload, ask } = await setup(t);
+  const org = await organization("northbridge");
+  assert.equal((await ask("invalid", "Hi!")).status, 401);
+  for (const [message, expected] of [
+    ["Hi!", /^Hi!/],
+    ["Great thanks. Love your service.", /^You’re welcome!/],
+  ] as const) {
+    const response = await ask(org.token, message);
+    assert.equal(response.status, 200, await response.clone().text());
+    const reply = await response.json() as Answer;
+    assert.equal(reply.status, "acknowledged");
+    assert.match(reply.text, expected);
+    assert.deepEqual(reply.references, []);
+  }
+  const dashboard = await request("/api/admin/dashboard", { headers: org.headers });
+  assert.deepEqual((await dashboard.json()).usage, { asked: 0, answered: 0, no_answer: 0 });
+  assert.equal(stub.calls.length, 0);
+
+  assert.equal((await upload(org.headers, await createFixturePdf(organizations[0].files[1].pages))).status, 201);
+  const response = await ask(org.token, "Thanks! What is the Northbridge library desk code?");
+  const reply = await response.json() as Answer;
+  assert.equal(reply.status, "answered");
+  assert.match(reply.text, /OBSERVATORY-17/);
+  assert.equal(reply.references.length, 1);
+  assert.equal(stub.calls.length, 2);
+});
+
 test("enforces upload limits and retains indexed evidence after a failed replacement", async t => {
   const { request, organization, upload, ask } = await setup(t);
   const a = await organization("northbridge");

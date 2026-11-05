@@ -39,3 +39,24 @@ test("Gemini reports quota errors without exposing the provider response", async
     (error: unknown) => error instanceof RequestError && error.status === 503 && /Gemini is rate limited/.test(error.message),
   );
 });
+
+test("Ollama sends a structured request to the local server without an API key", async t => {
+  const local = { provider: "ollama", model: "qwen-test", ollamaUrl: "http://127.0.0.1:11434", layaUrl: settings.layaUrl } as const;
+  t.mock.method(globalThis, "fetch", async (url: URL, init: RequestInit) => {
+    assert.equal(String(url), "http://127.0.0.1:11434/api/chat");
+    assert.deepEqual([...new Headers(init.headers)], [["content-type", "application/json"]]);
+    const body = JSON.parse(String(init.body));
+    assert.equal(body.model, local.model);
+    assert.equal(body.stream, false);
+    assert.deepEqual(body.format, JSON.parse(JSON.stringify(schema)));
+    assert.deepEqual(body.messages, [
+      { role: "system", content: "Classify the question." },
+      { role: "user", content: '{"question":"When do you open?"}' },
+    ]);
+    return Response.json({ done: true, done_reason: "stop", message: { content: '{"kind":"factual"}' } });
+  });
+
+  assert.deepEqual(await createModels(local).generate(
+    "question_plan", schema, "Classify the question.", { question: "When do you open?" },
+  ), { kind: "factual" });
+});

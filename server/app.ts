@@ -5,13 +5,26 @@ import { getMigrations } from "better-auth/db/migration";
 import { organization } from "better-auth/plugins";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
-import { LIMITS } from "../shared/contracts.js";
+import { LIMITS, type Answer } from "../shared/contracts.js";
 import { answerQuestion } from "./ask.js";
 import type { Models } from "./models.js";
 import { openPdf, parsePdf, validatePdfBytes } from "./pdf.js";
 import { createStore, RequestError } from "./store.js";
 
 const hash = (text: string) => createHash("sha256").update(text).digest("hex");
+
+function socialReply(message: string): string | undefined {
+  const greeting = /^(?:hi|hello|hey|good morning|good afternoon|good evening)(?: there)?(?: cogniva)?$/;
+  const thanks = /^(?:(?:great|nice|awesome|perfect) )?(?:thanks|thank you)(?: (?:again|a lot|so much|very much|for (?:your help|the help|the answer|the info)))?$/;
+  const praise = /^(?:(?:i )?(?:love|appreciate) (?:your|the) (?:help|service)|great|nice|awesome|perfect|helpful|thats helpful|much appreciated|youre great)$/;
+  const acknowledges = (clause: string) => thanks.test(clause) || praise.test(clause);
+  const clauses = message.toLowerCase().replace(/['’]/g, "").split(/[.!?,;]+/)
+    .map(clause => clause.trim().replace(/\s+/g, " ")).filter(Boolean);
+  if (!clauses.length || !clauses.every(clause => greeting.test(clause) || acknowledges(clause))) return;
+  return clauses.some(acknowledges)
+    ? "You’re welcome! Happy to help."
+    : "Hi! I can answer questions about this organization’s documents.";
+}
 
 function tokenStorage(secret: string) {
   const key = createHash("sha256").update("cogniva-assistant:" + secret).digest();
@@ -81,6 +94,8 @@ export async function createApp(settings: { db: DatabaseSync; origin: string; se
       for (const [id, entry] of limits) if (entry.until <= now) limits.delete(id);
       limits.set(org, { until: now + 60_000, requests: 1 });
     }
+    const acknowledgment = socialReply(question);
+    if (acknowledgment) return c.json<Answer>({ status: "acknowledged", text: acknowledgment, references: [] });
     store.count(org, "asked");
     const result = await answerQuestion(models, question, store.search(org, question));
     store.count(org, result.status === "answered" ? "answered" : "no_answer");

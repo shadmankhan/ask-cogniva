@@ -9,6 +9,11 @@ export interface Models {
 }
 
 type GeneratorSettings = { apiKey?: string; model: string };
+type OllamaSettings = { model: string; ollamaUrl: string };
+type ModelSettings = (
+  (GeneratorSettings & { provider: "openrouter" | "gemini" }) |
+  (OllamaSettings & { provider: "ollama" })
+) & { layaUrl: string };
 
 function openRouterGenerator(settings: GeneratorSettings): Models["generate"] {
   const client = settings.apiKey ? new OpenRouter({ apiKey: settings.apiKey, timeoutMs: 40_000 }) : undefined;
@@ -87,9 +92,50 @@ function geminiGenerator(settings: GeneratorSettings): Models["generate"] {
   };
 }
 
-export function createModels(settings: GeneratorSettings & { provider: "openrouter" | "gemini"; layaUrl: string }): Models {
+function ollamaGenerator(settings: OllamaSettings): Models["generate"] {
+  const endpoint = new URL("/api/chat", settings.ollamaUrl);
+  return async (_name, schema, instructions, input) => {
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: settings.model,
+          stream: false,
+          think: false,
+          format: schema,
+          messages: [
+            { role: "system", content: instructions },
+            { role: "user", content: JSON.stringify(input) },
+          ],
+          options: { temperature: 0, num_ctx: 6_144, num_predict: 1_600 },
+        }),
+        redirect: "error",
+        signal: AbortSignal.timeout(90_000),
+      });
+      if (response.status === 404) throw new RequestError(503, "The Ollama model is missing. Run ollama pull with the model in OLLAMA_MODEL.");
+      if (!response.ok) throw new RequestError(503, "Ollama could not run the local model. Check the Ollama server logs.");
+      const result = await response.json() as { done?: boolean; done_reason?: string; message?: { content?: string } };
+      if (!result.done || result.done_reason === "length" || typeof result.message?.content !== "string") {
+        throw new RequestError(503, "Ollama returned an incomplete response. Try again.");
+      }
+      return JSON.parse(result.message.content);
+    } catch (error) {
+      if (error instanceof RequestError) throw error;
+      if (error instanceof Error && error.name === "TimeoutError") {
+        throw new RequestError(503, "Ollama timed out while running the local model. Try again.");
+      }
+      if (error instanceof TypeError) throw new RequestError(503, "Could not reach Ollama. Start ollama serve and check OLLAMA_URL.");
+      throw new RequestError(503, "Ollama returned an invalid response. Try again.");
+    }
+  };
+}
+
+export function createModels(settings: ModelSettings): Models {
+  const generate = settings.provider === "ollama" ? ollamaGenerator(settings)
+    : settings.provider === "gemini" ? geminiGenerator(settings) : openRouterGenerator(settings);
   return {
-    generate: settings.provider === "gemini" ? geminiGenerator(settings) : openRouterGenerator(settings),
+    generate,
     async decide(state, questions) {
       try {
         const response = await fetch(new URL("/v1/systemone", settings.layaUrl), {

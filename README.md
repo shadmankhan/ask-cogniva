@@ -4,10 +4,10 @@ Cogniva gives each organization a private PDF knowledge base and a shareable ass
 
 ## Run locally
 
-Install Node.js 24.15+ in the Node 24 series, npm, and Git. The local System 1 service also uses Python 3.13 and [uv](https://docs.astral.sh/uv/getting-started/installation/). Get an [OpenRouter key](https://openrouter.ai/settings/keys) or a [Gemini key](https://aistudio.google.com/apikey) for live language-model calls.
+Install Node.js 24.15+ in the Node 24 series, npm, and Git. The local System 1 service also uses Python 3.13 and [uv](https://docs.astral.sh/uv/getting-started/installation/). Use [Ollama](https://ollama.com/download) for local generation, or get an [OpenRouter key](https://openrouter.ai/settings/keys) or a [Gemini key](https://aistudio.google.com/apikey).
 
 1. Run `npm ci`.
-2. Copy `.env.example` to `.env` on first setup. Set `LLM_PROVIDER` to `openrouter` or `gemini` and fill in the matching API key. Keep API keys in the local file. Cogniva generates a local signing secret under `data/` and initializes the SQLite schema on startup.
+2. Copy `.env.example` to `.env` on first setup. Set `LLM_PROVIDER` to `ollama`, `openrouter`, or `gemini`. For a cloud provider, put its API key in the local file. For Ollama, start the Ollama app or run `ollama serve` in a separate terminal, then run `ollama pull qwen3:1.7b-q4_K_M` once. Cogniva generates a local signing secret under `data/` and initializes the SQLite schema on startup.
 3. Run `npm run seed` to create two sample organizations. It generates two text-based PDFs for each organization under `data/demo-pdfs/` and writes the local login details to `data/demo-accounts.json`. The synthetic source content and 14 test questions are in [fixtures/demo.ts](fixtures/demo.ts).
 4. In separate terminals, run `npm run laya` and `npm run dev`. The first Laya startup downloads the English checkpoint. Open [the dashboard](http://localhost:5173) to register or sign in as a demo organization.
 5. Run `npm run demo` in another terminal, copy the dashboard's iframe code, and paste it into [the separate demo page](http://localhost:5174).
@@ -16,18 +16,20 @@ Install Node.js 24.15+ in the Node 24 series, npm, and Git. The local System 1 s
 
 | Environment variable | Purpose |
 | --- | --- |
-| `LLM_PROVIDER` | Selects `openrouter` (default) or `gemini` for planning and answer generation. |
+| `LLM_PROVIDER` | Selects `openrouter` (default), `gemini`, or `ollama` for planning and answer generation. |
 | `OPENROUTER_API_KEY` | Server-side credential when using OpenRouter. |
 | `OPENROUTER_MODEL` | Defaults to `nvidia/nemotron-3.5-super-vl:free`. Use a model that supports strict JSON schemas. |
 | `GOOGLE_GEMINI_API_KEY` | Server-side credential when using Gemini. |
 | `GOOGLE_GEMINI_MODEL` | Defaults to `gemini-3.1-flash-lite`. Use a model with structured output support. |
+| `OLLAMA_URL` | Ollama server, normally `http://127.0.0.1:11434`. |
+| `OLLAMA_MODEL` | Local model tag, normally `qwen3:1.7b-q4_K_M`. Pull the selected model before starting Cogniva. |
 | `LAYA_URL` | Local decision service, normally `http://127.0.0.1:8000`. |
 | `PORT` | API port, normally `3001`. |
 | `COGNIVA_ORIGIN` | Allowed dashboard origin, normally `http://localhost:5173`. |
 | `COGNIVA_DB_PATH` | SQLite file, normally `data/cogniva.sqlite`. |
 | `COGNIVA_SECRET` | Optional stable server secret of at least 32 characters. A local secret file is created otherwise. |
 
-Change `LLM_PROVIDER` in `.env` and restart `npm run dev` to switch providers. The app uses the selected provider’s model and key. Laya handles local typed decisions with either provider.
+Change `LLM_PROVIDER` in `.env` and restart `npm run dev` to switch providers. Cogniva sends generation requests only to the selected provider. Ollama generation uses the local server and requires no API key. Laya handles local typed decisions with all three providers.
 
 ## Architecture
 
@@ -37,6 +39,7 @@ flowchart TD
   B --> C[pdf-lib and AnyDoc]
   C --> D[(SQLite PDFs, page chunks, and FTS5)]
   V[Visitor chat and iframe] -->|Assistant token| B
+  B -->|Standalone greeting or thanks| V
   B -->|Resolve organization and search| D
   D --> P[LLM planner]
   P -->|Individual decision checks| L[Local Laya Choice and Boolean]
