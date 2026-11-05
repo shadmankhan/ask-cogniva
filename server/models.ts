@@ -19,8 +19,8 @@ export function createModels(settings: { apiKey?: string; model: string; layaUrl
           chatRequest: {
             model: settings.model,
             stream: false,
-            maxTokens: 900,
-            reasoning: { effort: "none" },
+            maxTokens: name === "question_plan" ? 1_600 : 900,
+            reasoning: { effort: name === "question_plan" ? "low" : "none" },
             provider: { requireParameters: true, allowFallbacks: false },
             responseFormat: { type: "json_schema", jsonSchema: { name, strict: true, schema } },
             messages: [

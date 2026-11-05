@@ -29,5 +29,5 @@ export interface Answer {
   status: "answered" | "no_answer" | "needs_clarification";
   text: string;
   references: Reference[];
-  decision?: { verdict: "Eligible" | "Not eligible" | "Uncertain"; checks: DecisionCheck[] };
+  decision?: { verdict: "Conditions met" | "Conditions not met" | "Uncertain"; checks: DecisionCheck[] };
 }

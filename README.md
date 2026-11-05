@@ -48,9 +48,9 @@ The API validates the PDF signature, file size, page count, and organization quo
 
 ### AI decisions and grounding
 
-The API resolves the tenant before retrieval. If search returns no evidence, it responds directly. Otherwise the OpenRouter planner selects evidence and classifies the question. Factual questions can go straight to composition. The demonstrated individual decision workflow is Academic Merit Scholarship eligibility.
+The API resolves the tenant before retrieval. It returns a no-answer response when search finds no evidence. Otherwise the OpenRouter planner selects evidence and classifies the question. Factual questions go straight to composition. For a decision, the planner extracts conditions and their combination from the retrieved passages. It quotes the rules from the PDFs and the visitor facts from the question.
 
-For that workflow, Laya **Choice** checks the policy category. Laya **Boolean (Noul)** judges whether the existing award is athletics-based. These judgments are submitted together against the same state. TypeScript reads the supported rules from the cited passages, compares the visitor's year and GPA, and combines the checks. Missing facts lead to clarification, and an ambiguous Laya output can lead to an uncertain verdict. The composer explains the grounded rules while the UI renders the computed verdict and a trace of the typed outputs. The trace exposes model outputs and rule results, with no private reasoning.
+The server validates those quotes before running a decision. Laya **Choice** evaluates whether the cited policy applies. Laya **Boolean (Noul)** evaluates individual semantic predicates. TypeScript performs explicit numeric comparisons and combines the checks using the policy's required or alternative conditions. Missing facts lead to clarification, and unsupported or ambiguous cases can be explained without a definitive verdict. The composer explains the cited rules while the UI renders the computed result and a trace of the typed outputs.
 
 For generated claims, the model supplies a passage ID and a verbatim supporting quote. The server validates both against the retrieved ledger before returning document and page references. The answer composer can also report insufficient evidence.
 
@@ -76,12 +76,12 @@ Better Auth manages email/password login and admin sessions. Administrative rout
 
 ### Known limitations
 
-This is a single-process local MVP with synchronous ingestion, text-based PDFs, and keyword retrieval. OCR, a worker queue for ingestion, and hybrid search would extend the supported documents and workloads. The registered policy workflow covers the sample merit scholarship format. Other organizations can use document-grounded Q&A. Decision confidence is heuristic and needs evaluation on more labeled cases. OpenRouter's free route is subject to rate limits and availability.
+This is a single-process local MVP with synchronous ingestion, text-based PDFs, and keyword retrieval. OCR, a worker queue for ingestion, and hybrid search would extend the supported documents and workloads. Policy decisions are limited to cases the planner can represent as a supported combination of simple checks. Conflicting, ambiguous, or complex policies may yield a cited summary or an uncertain result. Decision confidence is heuristic and needs evaluation on more labeled cases. OpenRouter's free route is subject to rate limits and availability.
 
 ## Demo walkthrough
 
 1. Sign up as a new organization, upload a PDF, and show the document status and assistant link.
 2. Open the seeded Northbridge dashboard, paste its embed into the separate page, and ask when the library opens. Open the page citation.
-3. Ask both multi-condition scholarship questions from the fixture list. Expand **How Cogniva decided** and explain Laya's outputs and the TypeScript combination.
+3. Ask both multi-condition scholarship questions from the fixture list. Expand **How Cogniva decided** and explain the conditions extracted from the PDFs, Laya's outputs, and the TypeScript combination. The same workflow can process rules from other domains.
 4. Ask for the Northbridge library desk code using both organizations' assistants. Northbridge has the code, while Harborlight's knowledge base gives no answer. Show a Harborlight-specific question too.
 5. Explain the architecture diagram, invalid-token behavior, and the isolation tests. The assignment video is approximately 8–15 minutes.

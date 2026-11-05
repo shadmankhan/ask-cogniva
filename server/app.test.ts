@@ -14,11 +14,10 @@ const json = (body: unknown) => ({ headers: { "Content-Type": "application/json"
 
 function fakeModels() {
   const calls: { name: string; passages: Passage[] }[] = [];
-  const stub: { fail: string; noul: number; badQuote: boolean; unsupportedPlan: boolean; calls: typeof calls; decisions: number; models: Models } = {
+  const stub: { fail: string; noul: number; badQuote: boolean; plan?: (question: string, passages: Passage[]) => unknown; calls: typeof calls; decisions: number; models: Models } = {
     fail: "",
     noul: 0.82,
     badQuote: false,
-    unsupportedPlan: false,
     calls,
     decisions: 0,
     models: {
@@ -27,11 +26,8 @@ function fakeModels() {
         calls.push({ name, passages });
         if (stub.fail === name) throw new RequestError(503, "Language model unavailable.");
         if (name === "question_plan") {
-          return {
-            kind: stub.unsupportedPlan ? "unsupported_decision" : /am i eligible/i.test(question) ? "scholarship" : "factual",
-            evidenceIds: passages.map(p => p.id),
-            award: question.includes("Varsity Basketball Grant") ? "Varsity Basketball Grant" : "",
-          };
+          return stub.plan?.(question, passages) ??
+            { kind: "factual", evidenceIds: passages.map(p => p.id), policy: "", scope: { evidenceId: "", quote: "" }, combine: "none", conditions: [] };
         }
         if (/compare/i.test(question)) {
           const claims = ["The Access Bursary award is 750 credits.", "The Academic Merit Scholarship award is 2,000 credits."]
@@ -48,13 +44,12 @@ function fakeModels() {
           text: quote, evidenceId: passage.id, quote: stub.badQuote ? "This is an invented quotation." : quote,
         }] };
       },
-      async decide() {
+      async decide(_state, questions) {
         stub.decisions++;
         if (stub.fail === "laya") throw new RequestError(503, "Laya unavailable.");
-        return {
-          policy: { type: "choice", choice: "merit", probabilities: { merit: 0.94 } },
-          athleticAid: { type: "noul", noul: stub.noul },
-        };
+        return "scope" in questions
+          ? { scope: { type: "choice", choice: "applies", probabilities: { applies: 0.94 } } }
+          : { check: { type: "noul", noul: stub.noul } };
       },
     } satisfies Models,
   };
@@ -153,35 +148,85 @@ test("enforces upload limits and retains indexed evidence after a failed replace
   assert.equal((await request(`/api/admin/documents/${original.document.id}/file`, { headers: a.headers })).status, 404);
 });
 
-test("runs both typed decisions, combines exact checks, and distinguishes abstention from outages", async t => {
+test("decision conditions and thresholds come from the uploaded policy", async t => {
   const { stub, organization, upload, ask } = await setup(t);
-  const a = await organization("northbridge");
-  assert.equal((await upload(a.headers, await createFixturePdf(organizations[0].files[0].pages))).status, 201);
-  const question = "Am I eligible for the Academic Merit Scholarship? I am in year 3, have GPA 3.8, and receive the Varsity Basketball Grant.";
-  stub.unsupportedPlan = true;
-  const answer = await ask(a.token, question);
-  stub.unsupportedPlan = false;
+  const org = await organization("makerspace");
+  const title = "Laser Cutter Booking Policy";
+  const safety = "Members must complete laser cutter safety orientation.";
+  const policy = async (minutes: number) => createFixturePdf([[
+    title, safety, `Laser cutter reservations have a maximum of ${minutes} minutes.`,
+  ]]);
+  const uploaded = await upload(org.headers, await policy(90));
+  assert.equal(uploaded.status, 201);
+  const { document } = await uploaded.json() as { document: DocumentInfo };
+
+  let badRule = false;
+  let truncatedFact = false;
+  stub.plan = (question, passages) => {
+    const passage = passages.find(p => p.text.includes(title))!;
+    const evidenceId = passage.id;
+    return {
+      kind: "decision", evidenceIds: [evidenceId],
+      policy: title, scope: { evidenceId, quote: title }, combine: "all",
+      conditions: [
+          {
+            label: "Requested duration", rule: {
+              evidenceId,
+              quote: badRule ? "Laser cutter bookings have no limits."
+                : passage.text.match(/Laser cutter reservations have a maximum of \d+ minutes\./)![0],
+            },
+            fact: truncatedFact ? "6" : question.match(/\b(?:60 minutes|1 hour)\b/)?.[0] ?? "",
+            predicate: "", expected: true,
+          },
+          {
+            label: "Safety orientation", rule: { evidenceId, quote: safety },
+            fact: "I completed laser cutter safety orientation.",
+            predicate: "Has the visitor completed safety orientation?", expected: true,
+          },
+      ],
+    };
+  };
+
+  const question = "Can I reserve the laser cutter for 60 minutes? I completed laser cutter safety orientation.";
+  const answer = await ask(org.token, question);
   assert.equal(answer.status, 200, await answer.clone().text());
   const result = await answer.json() as Answer;
-  assert.equal(result.decision?.verdict, "Not eligible");
-  assert.deepEqual(result.decision?.checks.map(check => check.method), ["Choice", "Rule", "Rule", "Boolean (Noul)"]);
+  assert.equal(result.decision?.verdict, "Conditions met");
+  assert.deepEqual(result.decision?.checks.map(check => check.method), ["Choice", "Rule", "Boolean (Noul)"]);
+
   stub.noul = 0.48;
-  assert.equal((await (await ask(a.token, question)).json() as Answer).decision?.verdict, "Uncertain");
+  assert.equal((await (await ask(org.token, question)).json() as Answer).decision?.verdict, "Uncertain");
+  stub.noul = 0.82;
+  const differentUnits = await ask(org.token, question.replace("60 minutes", "1 hour"));
+  assert.equal((await differentUnits.json() as Answer).decision?.verdict, "Uncertain");
   const before = stub.decisions;
-  const missing = await ask(a.token, question.replace("have GPA 3.8, and ", ""));
+  truncatedFact = true;
+  const partialFact = await ask(org.token, question);
+  assert.equal((await partialFact.json() as Answer).decision, undefined);
+  truncatedFact = false;
+  const missing = await ask(org.token, question.replace(" for 60 minutes", ""));
   assert.equal((await missing.json() as Answer).status, "needs_clarification");
+  badRule = true;
+  const unresolved = await (await ask(org.token, question)).json() as Answer;
+  assert.match(unresolved.text, /couldn’t verify a decision/);
+  assert.equal(unresolved.decision, undefined);
   assert.equal(stub.decisions, before);
+  badRule = false;
+
+  assert.equal((await upload(org.headers, await policy(45), "Updated.pdf", document.id)).status, 201);
+  assert.equal((await (await ask(org.token, question)).json() as Answer).decision?.verdict, "Conditions not met");
+
   stub.fail = "laya";
-  assert.equal((await ask(a.token, question)).status, 503);
+  assert.equal((await ask(org.token, question)).status, 503);
   stub.fail = "question_plan";
-  assert.equal((await ask(a.token, question)).status, 503);
+  assert.equal((await ask(org.token, question)).status, 503);
   stub.fail = "";
+  stub.plan = undefined;
   stub.badQuote = true;
-  const unsupported = await (await ask(a.token, "What is the Academic Merit Scholarship minimum GPA?")).json() as Answer;
+  const unsupported = await (await ask(org.token, "What is the laser cutter maximum duration?")).json() as Answer;
   assert.equal(unsupported.status, "no_answer");
   assert.deepEqual(unsupported.references, []);
 });
-
 
 test("a comparison retains both independently grounded facts and excludes an invalid combined claim", async t => {
   const { organization, upload, ask } = await setup(t);
