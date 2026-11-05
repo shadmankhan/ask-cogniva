@@ -1,5 +1,9 @@
 export const LIMITS = { documents: 10, pages: 20, bytes: 10_000_000, question: 1_200 };
 
+export interface AssistantInfo {
+  organizationName: string;
+}
+
 export interface DocumentInfo {
   id: string;
   name: string;

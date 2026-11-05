@@ -110,7 +110,9 @@ export function createStore(db: DatabaseSync) {
         DO UPDATE SET token_hash = excluded.token_hash, sealed_token = excluded.sealed_token`).run(org, hash, sealed);
     },
     tokenOrganization(hash: string) {
-      return one<{ org_id: string }>("SELECT org_id FROM assistants WHERE token_hash = ?", hash)?.org_id;
+      return one<{ id: string; name: string }>(
+        `SELECT o.id, o.name FROM assistants a JOIN organization o ON o.id = a.org_id WHERE a.token_hash = ?`, hash,
+      );
     },
     list(org: string) {
       return all<DocumentInfo>(`SELECT ${documentColumns} FROM documents WHERE org_id = ? ORDER BY created_at DESC, rowid DESC`, org);

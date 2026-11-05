@@ -10,7 +10,7 @@ Install Node.js 24.15+ in the Node 24 series, npm, and Git. The local System 1 s
 2. Copy `.env.example` to `.env` on first setup. Set `LLM_PROVIDER` to `ollama`, `openrouter`, or `gemini`. For a cloud provider, put its API key in the local file. For Ollama, start the Ollama app or run `ollama serve` in a separate terminal, then run `ollama pull qwen3:1.7b-q4_K_M` once. Cogniva generates a local signing secret under `data/` and initializes the SQLite schema on startup.
 3. Run `npm run seed` to create two sample organizations. It generates two text-based PDFs for each organization under `data/demo-pdfs/` and writes the local login details to `data/demo-accounts.json`. The synthetic source content and 14 test questions are in [fixtures/demo.ts](fixtures/demo.ts).
 4. In separate terminals, run `npm run laya` and `npm run dev`. The first Laya startup downloads the English checkpoint. Open [the dashboard](http://localhost:5173) to register or sign in as a demo organization.
-5. Run `npm run demo` in another terminal, copy the dashboard's iframe code, and paste it into [the separate demo page](http://localhost:5174).
+5. Run `npm run demo` in another terminal and open the [sample visitor help center](http://localhost:5174). In the dashboard, open **Visitor assistant** and click **Copy embed**. Paste the code into the sample page and click **Load assistant**. The example lives in [scripts/embed-demo.html](scripts/embed-demo.html).
 
 `npm test` exercises real SQLite, authentication, PDF parsing, and the HTTP routes with deterministic model stubs. `npm run build` type-checks the application and bundles the client. To serve the bundle locally, run `COGNIVA_ORIGIN=http://localhost:3001 npm start` after building.
 
@@ -64,7 +64,7 @@ For generated claims, the model supplies a passage ID and a verbatim supporting 
 
 ### Security
 
-Better Auth manages email/password login and admin sessions. Administrative routes require an owner or admin membership in the resolved organization. Public assistant tokens authorize questions against one organization. The server stores a hash for token lookup and encrypts the token for redisplay in the dashboard. Rotation invalidates the old token. File downloads, replacements, deletes, and retrieval are scoped by organization. The public response includes short cited passages and a rate limit applies per assistant organization.
+Better Auth manages email/password login and admin sessions. Administrative routes require an owner or admin membership in the resolved organization. Public assistant tokens authorize questions against one organization and identify the organization displayed in the chat. The server stores a hash for token lookup and encrypts the token for redisplay in the dashboard. Rotation invalidates the old token. File downloads, replacements, deletes, and retrieval are scoped by organization. The public response includes short cited passages and a rate limit applies per assistant organization.
 
 `.env` and the SQLite, secret, and generated demo files under `data/` are ignored by Git. The selected cloud provider receives the visitor's question and selected passages for planning and composition. Use the synthetic fixture material for the free model demo. AnyDoc and Laya run locally.
 
@@ -80,6 +80,7 @@ Better Auth manages email/password login and admin sessions. Administrative rout
 | `PUT /api/admin/documents/:id` | Upload and index a replacement. |
 | `POST /api/admin/documents/:id/retry` | Retry a failed ingestion. |
 | `DELETE /api/admin/documents/:id` | Delete a PDF and its index entries. |
+| `POST /api/assistant` | Resolve the organization’s display name from an assistant token. |
 | `POST /api/ask` | Ask a question with an assistant token. |
 
 ### Known limitations

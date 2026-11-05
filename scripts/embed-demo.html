@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Visitor help center | Cogniva embed demo</title>
+  <style>
+    body { font: 16px system-ui; margin: 2rem auto; padding: 0 1rem; max-width: 760px; color: #172a29; }
+    form { display: grid; gap: .5rem; }
+    label { font-weight: 600; }
+    textarea, button { font: inherit; padding: .6rem; }
+    button { justify-self: start; cursor: pointer; }
+    iframe { box-sizing: border-box; width: 100%; height: 640px; border: 1px solid #b4c9c1; border-radius: .8rem; }
+    #message { color: #9a2f24; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Visitor help center</h1>
+    <p>This sample organization website hosts a Cogniva assistant in an iframe.</p>
+    <form>
+      <label for="code">Paste your embed code here</label>
+      <textarea id="code" rows="4" placeholder="Copy the iframe from the Cogniva dashboard" required></textarea>
+      <button type="submit">Load assistant</button>
+    </form>
+    <p id="message" role="alert"></p>
+    <section id="preview" aria-labelledby="preview-title" hidden>
+      <h2 id="preview-title">Assistant preview</h2>
+      <div id="embed"></div>
+    </section>
+  </main>
+  <script>
+    const localOrigins = new Set([
+      "http://localhost:5173", "http://localhost:3001",
+      "http://127.0.0.1:5173", "http://127.0.0.1:3001",
+    ]);
+    const code = document.getElementById("code");
+    const embed = document.getElementById("embed");
+    const preview = document.getElementById("preview");
+    const message = document.getElementById("message");
+
+    document.querySelector("form").addEventListener("submit", event => {
+      event.preventDefault();
+      const template = document.createElement("template");
+      template.innerHTML = code.value;
+      const pasted = template.content.querySelector("iframe");
+      try {
+        const src = new URL(pasted?.getAttribute("src") ?? "");
+        const token = new URLSearchParams(src.hash.slice(1)).get("token");
+        if (!localOrigins.has(src.origin) || src.pathname !== "/assistant" || !token || !/^[\w-]{43}$/.test(token)) {
+          throw new Error("Invalid Cogniva embed code");
+        }
+        const iframe = document.createElement("iframe");
+        iframe.src = src.href;
+        iframe.title = pasted.title || "Cogniva assistant";
+        iframe.referrerPolicy = "no-referrer";
+        embed.replaceChildren(iframe);
+        preview.hidden = false;
+        message.textContent = "";
+      } catch {
+        embed.replaceChildren();
+        preview.hidden = true;
+        message.textContent = "Paste an iframe snippet from your local Cogniva dashboard.";
+      }
+    });
+  </script>
+</body>
+</html>

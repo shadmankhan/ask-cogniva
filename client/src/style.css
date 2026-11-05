@@ -68,7 +68,8 @@ p { line-height: 1.55; }
 .banner { background: #fff1ee; }
 .empty { padding: 1rem; border: 1px dashed var(--border); border-radius: .45rem; color: var(--muted); }
 .chat-page { max-width: 780px; margin: auto; min-height: 100vh; display: flex; flex-direction: column; }
-.chat-header { padding: .8rem 1rem; background: white; border-bottom: 1px solid var(--border); }
+.chat-header { padding: .8rem 1rem; background: white; border-bottom: 1px solid var(--border); overflow-wrap: anywhere; }
+.chat-header .muted { flex-shrink: 0; }
 .thread { flex: 1; padding: 1rem; overflow-wrap: anywhere; }
 .chat-intro { padding: 1.5rem .15rem; }
 .chat-intro h1 { font-size: 1.7rem; }
@@ -76,6 +77,7 @@ p { line-height: 1.55; }
 .turn { margin: 0 0 1.2rem; }
 .question { margin-left: min(15%, 6rem); padding: .65rem .8rem; border-radius: .65rem; background: #dfece4; }
 .response { padding: .85rem; border-radius: .65rem; background: white; border: 1px solid var(--border); }
+.response-author { font-size: .85rem; font-weight: 650; color: var(--green); }
 .verdict { display: block; margin-bottom: .5rem; color: var(--green); }
 .citation { display: inline; font-size: .8rem; margin-left: .18rem; background: #e9f3ec; padding: .1rem .2rem; border-radius: .2rem; }
 .sources { display: grid; gap: .4rem; }

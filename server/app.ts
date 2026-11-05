@@ -5,7 +5,7 @@ import { getMigrations } from "better-auth/db/migration";
 import { organization } from "better-auth/plugins";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
-import { LIMITS, type Answer } from "../shared/contracts.js";
+import { LIMITS, type Answer, type AssistantInfo } from "../shared/contracts.js";
 import { answerQuestion } from "./ask.js";
 import type { Models } from "./models.js";
 import { openPdf, parsePdf, validatePdfBytes } from "./pdf.js";
@@ -13,17 +13,20 @@ import { createStore, RequestError } from "./store.js";
 
 const hash = (text: string) => createHash("sha256").update(text).digest("hex");
 
-function socialReply(message: string): string | undefined {
+function assistantReply(message: string, organizationName: string): string | undefined {
   const greeting = /^(?:hi|hello|hey|good morning|good afternoon|good evening)(?: there)?(?: cogniva)?$/;
   const thanks = /^(?:(?:great|nice|awesome|perfect) )?(?:thanks|thank you)(?: (?:again|a lot|so much|very much|for (?:your help|the help|the answer|the info)))?$/;
   const praise = /^(?:(?:i )?(?:love|appreciate) (?:your|the) (?:help|service)|great|nice|awesome|perfect|helpful|thats helpful|much appreciated|youre great)$/;
+  const identity = /^(?:who are you|(?:what|which) organi[sz]ation (?:is this|are you (?:answering )?for|do you (?:represent|answer for)))$/;
   const acknowledges = (clause: string) => thanks.test(clause) || praise.test(clause);
   const clauses = message.toLowerCase().replace(/['’]/g, "").split(/[.!?,;]+/)
     .map(clause => clause.trim().replace(/\s+/g, " ")).filter(Boolean);
-  if (!clauses.length || !clauses.every(clause => greeting.test(clause) || acknowledges(clause))) return;
+  if (!clauses.length || !clauses.every(clause => greeting.test(clause) || acknowledges(clause) || identity.test(clause))) return;
+  const introduction = `I’m the document assistant for ${organizationName}.`;
+  if (clauses.some(clause => identity.test(clause))) return introduction;
   return clauses.some(acknowledges)
     ? "You’re welcome! Happy to help."
-    : "Hi! I can answer questions about this organization’s documents.";
+    : `Hi! ${introduction}`;
 }
 
 function tokenStorage(secret: string) {
@@ -74,31 +77,40 @@ export async function createApp(settings: { db: DatabaseSync; origin: string; se
   app.on(["GET", "POST"], "/api/auth/*", c => auth.handler(c.req.raw));
   app.get("/api/health", c => c.json({ status: "ok" }));
 
-  app.post("/api/ask", bodyLimit({ maxSize: 8_192 }), async c => {
-    const body: unknown = await c.req.json().catch(() => undefined);
-    if (!body || typeof body !== "object" || !("token" in body) || typeof body.token !== "string" ||
-        !/^[\w-]{43}$/.test(body.token)) {
-      throw new RequestError(401, "This assistant link is invalid or has been replaced.");
+  function requireAssistant(token: unknown) {
+    if (typeof token === "string" && /^[\w-]{43}$/.test(token)) {
+      const org = store.tokenOrganization(hash(token));
+      if (org) return org;
     }
-    const org = store.tokenOrganization(hash(body.token));
-    if (!org) throw new RequestError(401, "This assistant link is invalid or has been replaced.");
-    const question = "question" in body && typeof body.question === "string" ? body.question.trim() : "";
+    throw new RequestError(401, "This assistant link is invalid or has been replaced.");
+  }
+
+  app.post("/api/assistant", bodyLimit({ maxSize: 1_024 }), async c => {
+    const body = await c.req.json<{ token?: unknown }>().catch(() => null);
+    const org = requireAssistant(body?.token);
+    return c.json<AssistantInfo>({ organizationName: org.name });
+  });
+
+  app.post("/api/ask", bodyLimit({ maxSize: 8_192 }), async c => {
+    const body = await c.req.json<{ token?: unknown; question?: unknown }>().catch(() => null);
+    const org = requireAssistant(body?.token);
+    const question = typeof body?.question === "string" ? body.question.trim() : "";
     if (!question) throw new RequestError(400, "Enter a question.");
     if (question.length > LIMITS.question) throw new RequestError(400, "Keep your question to 1,200 characters.");
     const now = Date.now();
-    const counter = limits.get(org);
+    const counter = limits.get(org.id);
     if (counter && counter.until > now) {
       if (counter.requests >= 20) throw new RequestError(429, "Too many questions. Try again in a minute.");
       counter.requests++;
     } else {
       for (const [id, entry] of limits) if (entry.until <= now) limits.delete(id);
-      limits.set(org, { until: now + 60_000, requests: 1 });
+      limits.set(org.id, { until: now + 60_000, requests: 1 });
     }
-    const acknowledgment = socialReply(question);
+    const acknowledgment = assistantReply(question, org.name);
     if (acknowledgment) return c.json<Answer>({ status: "acknowledged", text: acknowledgment, references: [] });
-    store.count(org, "asked");
-    const result = await answerQuestion(models, question, store.search(org, question));
-    store.count(org, result.status === "answered" ? "answered" : "no_answer");
+    store.count(org.id, "asked");
+    const result = await answerQuestion(models, question, store.search(org.id, question));
+    store.count(org.id, result.status === "answered" ? "answered" : "no_answer");
     return c.json(result);
   });
 

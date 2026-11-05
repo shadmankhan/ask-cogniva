@@ -165,7 +165,9 @@ export function Dashboard() {
   if (session.isPending) return <main className="page"><p role="status">Loading Cogniva…</p></main>;
   if (!userId) return <SignIn />;
   const url = data?.token ? `${window.location.origin}/assistant#token=${data.token}` : "";
-  const embed = url ? `<iframe src="${url}" title="Cogniva assistant" width="480" height="640" referrerpolicy="no-referrer"></iframe>` : "";
+  const embedTitle = `${data?.organization.name ?? "Cogniva"} assistant`
+    .replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+  const embed = url ? `<iframe src="${url}" title="${embedTitle}" width="480" height="640" referrerpolicy="no-referrer"></iframe>` : "";
 
   return <>
     <header className="bar">

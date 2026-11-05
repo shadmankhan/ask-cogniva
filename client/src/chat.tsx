@@ -1,5 +1,5 @@
-import { Fragment, useState, type FormEvent } from "react";
-import { LIMITS, type Answer } from "../../shared/contracts.js";
+import { Fragment, useEffect, useState, type FormEvent } from "react";
+import { LIMITS, type Answer, type AssistantInfo } from "../../shared/contracts.js";
 import { api } from "./api.js";
 
 function CitedAnswer({ answer, index }: { answer: Answer; index: number }) {
@@ -31,15 +31,35 @@ function CitedAnswer({ answer, index }: { answer: Answer; index: number }) {
 
 export function Chat() {
   const [token] = useState(() => new URLSearchParams(window.location.hash.slice(1)).get("token"));
+  const [assistant, setAssistant] = useState<AssistantInfo>();
+  const [linkError, setLinkError] = useState("");
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState<{ question: string; answer: Answer }[]>([]);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
 
+  useEffect(() => {
+    if (!token) return;
+    const controller = new AbortController();
+    api<AssistantInfo>("/api/assistant", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token }),
+      signal: controller.signal,
+    }).then(info => {
+      if (controller.signal.aborted) return;
+      setAssistant(info);
+      document.title = `${info.organizationName} assistant | Cogniva`;
+    }).catch(failure => {
+      if (!controller.signal.aborted) {
+        setLinkError(failure instanceof Error ? failure.message : "Unable to open the assistant. Try again.");
+      }
+    });
+    return () => controller.abort();
+  }, [token]);
+
   async function ask(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const asked = question.trim();
-    if (!asked || busy || !token) return;
+    if (!asked || busy || !token || !assistant) return;
     setBusy(true);
     setError("");
     try {
@@ -56,22 +76,31 @@ export function Chat() {
   }
 
   return <main className="chat-page">
-    <header className="chat-header"><span className="brand">Cogniva</span><span className="muted">Document assistant</span></header>
+    <header className="chat-header">
+      <span className="brand">{assistant?.organizationName ?? "Cogniva"}</span>
+      <span className="muted">{assistant ? "Powered by Cogniva" : "Document assistant"}</span>
+    </header>
     <div className="thread" aria-live="polite">
-      {!token ? <p className="error">Open a valid assistant link from your organization.</p> : <>
+      {!token && <p className="error">Open a valid assistant link from your organization.</p>}
+      {linkError && <p className="error" role="alert">{linkError}</p>}
+      {token && !assistant && !linkError && <p className="muted" role="status">Opening assistant…</p>}
+      {assistant && <>
         {messages.length === 0 && <div className="chat-intro">
-          <span className="eyebrow">ASK THE KNOWLEDGE BASE</span>
+          <span className="eyebrow">VISITOR ASSISTANT</span>
           <h1>What would you like to know?</h1>
-          <p>Ask about the organization’s documents and check the cited pages behind each answer.</p>
+          <p>Ask about the documents from {assistant.organizationName} and check the cited pages behind each answer.</p>
         </div>}
         {messages.map((message, i) => <section className="turn" key={i}>
           <p className="question">{message.question}</p>
-          <div className="response"><CitedAnswer answer={message.answer} index={i} /></div>
+          <div className="response">
+            <p className="response-author">{assistant.organizationName} assistant</p>
+            <CitedAnswer answer={message.answer} index={i} />
+          </div>
         </section>)}
         {busy && <p className="muted" role="status">Searching and preparing an answer…</p>}
       </>}
     </div>
-    {token && <form className="ask-box" onSubmit={ask}>
+    {assistant && <form className="ask-box" onSubmit={ask}>
       {error && <p className="error" role="alert">{error}</p>}
       <label>Ask a question<textarea rows={2} value={question} maxLength={LIMITS.question} disabled={busy}
         onChange={event => setQuestion(event.target.value)} placeholder="Ask about a policy, procedure, or decision…" required /></label>

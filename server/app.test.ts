@@ -101,6 +101,16 @@ test("signup, tenant-isolated retrieval and file access, token rotation, and del
   const { stub, request, organization, upload, ask } = await setup(t);
   const a = await organization("northbridge");
   const b = await organization("harborlight");
+  const identify = (token: string) => request("/api/assistant", {
+    ...json({ token, organizationName: "other organization" }), method: "POST",
+  });
+  for (const [token, organizationName] of [[a.token, "northbridge"], [b.token, "harborlight"]]) {
+    const identity = await identify(token);
+    assert.equal(identity.status, 200);
+    assert.equal(identity.headers.get("cache-control"), "no-store");
+    assert.deepEqual(await identity.json(), { organizationName });
+  }
+  assert.equal((await identify("X".repeat(43))).status, 401);
   const file = organizations[0].files[1];
   const added = await upload(a.headers, await createFixturePdf([["Unrelated section", "Photography tips."], file.pages[0]]), file.name);
   assert.equal(added.status, 201, await added.clone().text());
@@ -124,17 +134,20 @@ test("signup, tenant-isolated retrieval and file access, token rotation, and del
   assert.ok(stub.calls.every(call => call.passages.every(p => !p.text.includes("Harborlight"))));
   const newToken = await a.rotate();
   assert.equal((await ask(a.token, question)).status, 401);
+  assert.equal((await identify(a.token)).status, 401);
+  assert.equal((await identify(newToken)).status, 200);
   assert.equal((await ask(newToken, "")).status, 400);
   assert.equal((await request(`/api/admin/documents/${document.id}`, { method: "DELETE", headers: a.headers })).status, 200);
   assert.equal((await (await ask(newToken, question)).json() as Answer).status, "no_answer");
 });
 
-test("acknowledges standalone greetings and thanks without treating them as questions", async t => {
+test("handles greetings, thanks, and identity questions without searching the PDFs", async t => {
   const { stub, request, organization, upload, ask } = await setup(t);
   const org = await organization("northbridge");
   assert.equal((await ask("invalid", "Hi!")).status, 401);
   for (const [message, expected] of [
-    ["Hi!", /^Hi!/],
+    ["Hi!", /^Hi!.*northbridge/],
+    ["Hey, which organization are you answering for?", /^I’m the document assistant for northbridge\./],
     ["Great thanks. Love your service.", /^You’re welcome!/],
   ] as const) {
     const response = await ask(org.token, message);
