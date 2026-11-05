@@ -11,10 +11,14 @@ import { RequestError, type Passage } from "./store.js";
 
 const origin = "http://localhost:5173";
 const json = (body: unknown) => ({ headers: { "Content-Type": "application/json", Origin: origin }, body: JSON.stringify(body) });
+const factualPlan = (evidenceIds: string[]) => ({
+  kind: "factual", evidenceIds, policy: "", scope: { evidenceId: "", quote: "" }, combine: "none", conditions: [],
+});
+type ModelReply = (question: string, passages: Passage[]) => unknown;
 
 function fakeModels() {
   const calls: { name: string; passages: Passage[] }[] = [];
-  const stub: { fail: string; noul: number; badQuote: boolean; plan?: (question: string, passages: Passage[]) => unknown; calls: typeof calls; decisions: number; models: Models } = {
+  const stub: { fail: string; noul: number; badQuote: boolean; plan?: ModelReply; reply?: ModelReply; calls: typeof calls; decisions: number; models: Models } = {
     fail: "",
     noul: 0.82,
     badQuote: false,
@@ -26,23 +30,23 @@ function fakeModels() {
         calls.push({ name, passages });
         if (stub.fail === name) throw new RequestError(503, "Language model unavailable.");
         if (name === "question_plan") {
-          return stub.plan?.(question, passages) ??
-            { kind: "factual", evidenceIds: passages.map(p => p.id), policy: "", scope: { evidenceId: "", quote: "" }, combine: "none", conditions: [] };
+          return stub.plan?.(question, passages) ?? factualPlan(passages.map(p => p.id));
         }
+        if (stub.reply) return stub.reply(question, passages);
         if (/compare/i.test(question)) {
           const claims = ["The Access Bursary award is 750 credits.", "The Academic Merit Scholarship award is 2,000 credits."]
             .map(quote => ({ text: quote, quote, evidenceId: passages.find(p => p.text.includes(quote))!.id }));
-          return { status: "answered", claims: [...claims, {
+          return { parts: [{ question, claims: [...claims, {
             text: "The difference is 1,250 credits.", evidenceId: "E1,E2", quote: "A combined citation is invalid.",
-          }] };
+          }] }] };
         }
         const passage = passages.find(p => p.text.includes("OBSERVATORY-17")) ?? passages[0];
         const quote = passage.text.includes("OBSERVATORY-17")
           ? "The Northbridge library desk code is OBSERVATORY-17."
           : passage.text.replace(/^[#*\s]+/, "").split("\n")[0];
-        return { status: "answered", claims: [{
+        return { parts: [{ question, claims: [{
           text: quote, evidenceId: passage.id, quote: stub.badQuote ? "This is an invented quotation." : quote,
-        }] };
+        }] }] };
       },
       async decide(_state, questions) {
         stub.decisions++;
@@ -242,5 +246,93 @@ test("a comparison retains both independently grounded facts and excludes an inv
   assert.doesNotMatch(result.text, /1,250/);
   assert.deepEqual(result.references.map(ref => [ref.name, ref.page]), [
     ["Library and Access Bursary.pdf", 2], ["Merit Scholarship Rules.pdf", 2],
+  ]);
+});
+
+test("answers supported museum hours and identifies the unsupported part of the same request", async t => {
+  const { stub, organization, upload, ask } = await setup(t);
+  const org = await organization("museum");
+  const weekday = "Monday-Friday: the visitor front desk opens at 10:00 and closes at 17:00.";
+  const weekend = "Saturday-Sunday: the front desk operates 09:00-18:00.";
+  assert.equal((await upload(org.headers, await createFixturePdf([[
+    "Cedar Grove Museum Visitor Hours", weekday, weekend,
+  ]]), "Visitor Hours.pdf")).status, 201);
+  const opens = "hey at what time museum opens up?";
+  const unknown = "when does monkeys comes in the museum?";
+  stub.plan = () => ({ ...factualPlan([]), kind: "insufficient" });
+  let wrongWeekendQuote = false;
+  stub.reply = (question, passages) => {
+    const evidenceId = passages[0].id;
+    return { parts: [
+      ...(question.includes(opens) ? [{ question: opens, claims: [
+        { text: "The museum front desk opens at 10:00 on weekdays.", evidenceId, quote: weekday },
+        { text: "The museum front desk opens at 09:00 on weekends.", evidenceId, quote: wrongWeekendQuote ? weekday : weekend },
+      ] }] : []),
+      { question: unknown, claims: [] },
+    ] };
+  };
+  const question = `${opens} also ${unknown}`;
+  const response = await ask(org.token, question);
+  assert.equal(response.status, 200, await response.clone().text());
+  const result = await response.json() as Answer;
+  assert.equal(result.status, "answered");
+  assert.match(result.text, /10:00 on weekdays\. \[\[E1\]\]/);
+  assert.match(result.text, /09:00 on weekends\. \[\[E2\]\]/);
+  assert.ok(result.text.includes(`I couldn’t find a supported answer in this organization’s PDFs for “${unknown.slice(0, -1)}”.`));
+  assert.deepEqual(result.references.map(ref => [ref.id, ref.page, ref.quote]), [
+    ["E1", 1, weekday],
+    ["E2", 1, weekend],
+  ]);
+
+  wrongWeekendQuote = true;
+  const corrected = await (await ask(org.token, question)).json() as Answer;
+  assert.match(corrected.text, /10:00/);
+  assert.doesNotMatch(corrected.text, /09:00/);
+  assert.match(corrected.text, /couldn’t verify every detail/);
+  assert.equal(corrected.references.length, 1);
+
+  const absent = await (await ask(org.token, unknown)).json() as Answer;
+  assert.equal(absent.status, "no_answer");
+  assert.deepEqual(absent.references, []);
+});
+
+test("keeps grounded answers across PDFs even when the planner selects only one source", async t => {
+  const { stub, organization, upload, ask } = await setup(t);
+  const org = await organization("museum");
+  const hours = "Saturday-Sunday: the front desk operates 09:00-18:00.";
+  const booking = "School groups can request museum tours through the visitor ticket portal.";
+  const rate = "The school group rate is $6 per student.";
+  assert.equal((await upload(org.headers, await createFixturePdf([[
+    "Cedar Grove Museum Visitor Hours", hours,
+  ]]), "Visitor Hours.pdf")).status, 201);
+  assert.equal((await upload(org.headers, await createFixturePdf([[
+    "Cedar Grove Museum Group Bookings", booking, rate,
+  ]]), "Tour Guide.pdf")).status, 201);
+  stub.plan = (_question, passages) => factualPlan([passages.find(p => p.name === "Visitor Hours.pdf")!.id]);
+  const questions = [
+    "what if i want to come in group, can i book it?",
+    "how much it cost?",
+    "at what time generally museum closes on weekends?",
+  ];
+  stub.reply = (_question, passages) => {
+    const tours = passages.find(p => p.name === "Tour Guide.pdf")!.id;
+    const visitorHours = passages.find(p => p.name === "Visitor Hours.pdf")!.id;
+    return { parts: [
+      { question: questions[0], claims: [{ text: booking, evidenceId: tours, quote: booking }] },
+      { question: questions[1], claims: [{ text: rate, evidenceId: tours, quote: rate }] },
+      { question: questions[2], claims: [{ text: "The museum front desk closes at 18:00 on weekends.", evidenceId: visitorHours, quote: hours }] },
+    ] };
+  };
+  const response = await ask(org.token, questions.join(" "));
+  assert.equal(response.status, 200, await response.clone().text());
+  const result = await response.json() as Answer;
+  assert.equal(result.status, "answered");
+  assert.match(result.text, /visitor ticket portal/);
+  assert.match(result.text, /\$6 per student/);
+  assert.match(result.text, /18:00/);
+  assert.deepEqual(result.references.map(ref => [ref.name, ref.page, ref.quote]), [
+    ["Tour Guide.pdf", 1, booking],
+    ["Tour Guide.pdf", 1, rate],
+    ["Visitor Hours.pdf", 1, hours],
   ]);
 });

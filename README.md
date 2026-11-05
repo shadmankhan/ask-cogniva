@@ -57,7 +57,7 @@ The API resolves the tenant before retrieval. It returns a no-answer response wh
 
 The server validates those quotes before running a decision. Laya **Choice** evaluates whether the cited policy applies. Laya **Boolean (Noul)** evaluates individual semantic predicates. TypeScript performs explicit numeric comparisons and combines the checks using the policy's required or alternative conditions. Missing facts lead to clarification, and unsupported or ambiguous cases can be explained without a definitive verdict. The composer explains the cited rules while the UI renders the computed result and a trace of the typed outputs.
 
-For generated claims, the model supplies a passage ID and a verbatim supporting quote. The server validates both against the retrieved ledger before returning document and page references. The answer composer can also report insufficient evidence.
+For generated claims, the model supplies a passage ID and a verbatim supporting quote. The server validates both against the retrieved ledger before returning document and page references. For multi-part questions, the composer checks each part independently. Cogniva cites the parts it can support and identifies the gaps. It returns a full no-answer only when no part is supported.
 
 ### Security
 
