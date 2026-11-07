@@ -1,0 +1,2010 @@
+{
+  "startedAt": "2026-11-07T17:08:36.254Z",
+  "implementation": "79b8a9f7b7434c2bd6080d60c42527b5aba34ed6b45359344f5c2d94231bd56e",
+  "provider": "ollama",
+  "model": "gemma3:1b-it-qat",
+  "cloudCalls": 0,
+  "cases": [
+    {
+      "id": "n-hours",
+      "org": "Northbridge University",
+      "question": "What are your library opening hours on weekdays?",
+      "contains": [
+        "08:00",
+        "18:00"
+      ],
+      "status": "answered",
+      "http": 200,
+      "answer": {
+        "status": "no_answer",
+        "text": "This organization’s PDFs don’t contain enough information to answer that question.",
+        "references": []
+      },
+      "ms": 22996,
+      "pass": false,
+      "calls": [
+        {
+          "stage": "question_plan",
+          "ms": 7515,
+          "result": {
+            "kind": "insufficient",
+            "evidenceIds": [
+              "E1",
+              "E2"
+            ],
+            "policy": "Library Opening Hours"
+          }
+        },
+        {
+          "stage": "grounded_answer",
+          "ms": 11209,
+          "result": {
+            "parts": [
+              {
+                "question": "What are the opening hours for the Northbridge University Main Library on weekdays?",
+                "claims": [
+                  {
+                    "text": "The Northbridge University Main Library opens at 08:00 and closes at 18:00.",
+                    "evidenceId": "E1",
+                    "quote": "Service hours and entry arrangements for the fictional Northbridge University Main Library.\n\n- **Monday-Friday:** front desk opens at **08:00** and closes at **18:00**."
+                  }
+                ]
+              },
+              {
+                "question": "What is the procedure for accessing study rooms?",
+                "claims": [
+                  {
+                    "text": "To reserve a study room, students must use the Student Portal > Library > Rooms.",
+                    "evidenceId": "E2",
+                    "quote": "A registered visitor may use reading spaces, but must obtain written permission from library staff before borrowing restricted collection items."
+                  }
+                ]
+              },
+              {
+                "question": "What is the reference code for the front desk?",
+                "claims": [
+                  {
+                    "text": "The fictional front desk reference code is **NORTH-17**.",
+                    "evidenceId": "E1",
+                    "quote": "The fictional front desk reference code is **NORTH-17**."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "stage": "laya",
+          "ms": 1,
+          "result": []
+        },
+        {
+          "stage": "laya",
+          "ms": 4232,
+          "result": [
+            {
+              "relevant": {
+                "type": "noul",
+                "noul": 0.0505,
+                "confidence": 0.9495,
+                "answer_confidence": 0.9495,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "n-missing",
+      "org": "Northbridge University",
+      "question": "Am I eligible to apply for the Academic Merit Scholarship? I am a continuing Northbridge undergraduate taking 12 credits, making satisfactory academic progress, with no active disciplinary sanction and no other tuition funding. My outstanding tuition is $10,000.",
+      "status": "needs_clarification",
+      "http": 200,
+      "answer": {
+        "status": "needs_clarification",
+        "text": "Please include your facts for these required policy checks:\n\nEnrollment: Applicants must be admitted to, or currently enrolled in, a full-time undergraduate degree at Northbridge University. [[E1]]\n\nFull-time means at least 12 credits per term. [[E2]]\n\nAcademic performance: Continuing students need a cumulative GPA of at least 3.50/4.00 at application review. [[E3]]\n\nFirst-year applicants need an admission-equivalent GPA of 3.70/4.00. [[E4]]\n\nAcademic standing: Applicants must be making satisfactory academic progress and must not have an active university disciplinary sanction. [[E5]]",
+        "references": [
+          {
+            "id": "E1",
+            "name": "Academic Merit Scholarship Rules.pdf",
+            "page": 1,
+            "quote": "Enrollment: Applicants must be admitted to, or currently enrolled in, a full-time undergraduate degree at Northbridge University."
+          },
+          {
+            "id": "E2",
+            "name": "Academic Merit Scholarship Rules.pdf",
+            "page": 1,
+            "quote": "Full-time means at least 12 credits per term."
+          },
+          {
+            "id": "E3",
+            "name": "Academic Merit Scholarship Rules.pdf",
+            "page": 1,
+            "quote": "Academic performance: Continuing students need a cumulative GPA of at least 3.50/4.00 at application review."
+          },
+          {
+            "id": "E4",
+            "name": "Academic Merit Scholarship Rules.pdf",
+            "page": 1,
+            "quote": "First-year applicants need an admission-equivalent GPA of 3.70/4.00."
+          },
+          {
+            "id": "E5",
+            "name": "Academic Merit Scholarship Rules.pdf",
+            "page": 1,
+            "quote": "Academic standing: Applicants must be making satisfactory academic progress and must not have an active university disciplinary sanction."
+          }
+        ]
+      },
+      "ms": 20185,
+      "pass": true,
+      "calls": [
+        {
+          "stage": "question_plan",
+          "ms": 6155,
+          "result": {
+            "kind": "insufficient",
+            "evidenceIds": [
+              "E1",
+              "E2"
+            ],
+            "policy": "Academic Merit Scholarship Eligibility"
+          }
+        },
+        {
+          "stage": "policy_facts",
+          "ms": 9003,
+          "result": {
+            "R1": "Continuing Northbridge undergraduate student, taking 12 credits, with satisfactory academic progress, no active disciplinary sanction, and no other tuition funding.",
+            "R2": "Full-time means at least 12 credits per term",
+            "R3": "Cumulative GPA of at least 3.50/4.00 at application review",
+            "R4": "First-year applicant needs an admission-equivalent GPA of 3.70/4.00",
+            "R5": "Academic standing: Applicants must be making satisfactory academic progress and must not have an active university disciplinary sanction",
+            "R6": "The award is merit-based and cannot exceed the student's outstanding tuition charges",
+            "R7": "Concurrent awards: The scholarship may be combined with external grants, but total tuition funding cannot exceed 100% of billed tuition",
+            "R8": "To renew for the next academic year, recipients must maintain GPA 3.30/4.00 or above, remain enrolled in at least 12 credits per term, and stay in good standing",
+            "R9": "Personal merit statement: one-page PDF describing academic achievement (maximum 500 words)",
+            "R10": "Files must be PDF, each under 10 MB"
+          }
+        },
+        {
+          "stage": "laya",
+          "ms": 4952,
+          "result": [
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.857,
+                  "irrelevant": 0.143
+                },
+                "confidence": 0.4079,
+                "answer_confidence": 0.857,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.714
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.6468,
+                "confidence": 0.6468,
+                "answer_confidence": 0.6468,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.6125,
+                  "irrelevant": 0.3875
+                },
+                "confidence": 0.0368,
+                "answer_confidence": 0.6125,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.225
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.1916,
+                "confidence": 0.8084,
+                "answer_confidence": 0.8084,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.9328,
+                  "irrelevant": 0.0672
+                },
+                "confidence": 0.6447,
+                "answer_confidence": 0.9328,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.8656
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.7555,
+                "confidence": 0.7555,
+                "answer_confidence": 0.7555,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.7192,
+                  "irrelevant": 0.2808
+                },
+                "confidence": 0.1435,
+                "answer_confidence": 0.7192,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.4384
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.5215,
+                "confidence": 0.5215,
+                "answer_confidence": 0.5215,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.857,
+                  "irrelevant": 0.143
+                },
+                "confidence": 0.4079,
+                "answer_confidence": 0.857,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.714
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.6468,
+                "confidence": 0.6468,
+                "answer_confidence": 0.6468,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.5852,
+                  "irrelevant": 0.4148
+                },
+                "confidence": 0.021,
+                "answer_confidence": 0.5852,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.1704
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.3624,
+                "confidence": 0.6376,
+                "answer_confidence": 0.6376,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.5892,
+                  "irrelevant": 0.4108
+                },
+                "confidence": 0.0231,
+                "answer_confidence": 0.5892,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.1784
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.3972,
+                "confidence": 0.6028,
+                "answer_confidence": 0.6028,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "irrelevant",
+                "probabilities": {
+                  "applies": 0.3459,
+                  "irrelevant": 0.6541
+                },
+                "confidence": 0.0696,
+                "answer_confidence": 0.6541,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.3082
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.1001,
+                "confidence": 0.8999,
+                "answer_confidence": 0.8999,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "irrelevant",
+                "probabilities": {
+                  "applies": 0.4815,
+                  "irrelevant": 0.5185
+                },
+                "confidence": 0.001,
+                "answer_confidence": 0.5185,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.037
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.1438,
+                "confidence": 0.8562,
+                "answer_confidence": 0.8562,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "irrelevant",
+                "probabilities": {
+                  "applies": 0.2839,
+                  "irrelevant": 0.7161
+                },
+                "confidence": 0.1393,
+                "answer_confidence": 0.7161,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.4322
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.0912,
+                "confidence": 0.9088,
+                "answer_confidence": 0.9088,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "stage": "laya",
+          "ms": 0,
+          "result": []
+        }
+      ]
+    },
+    {
+      "id": "n-pass",
+      "org": "Northbridge University",
+      "question": "Am I eligible to apply for the Academic Merit Scholarship? I am a continuing Northbridge undergraduate taking 12 credits, with cumulative GPA 3.60 out of 4.00, satisfactory academic progress, no active disciplinary sanction, and no other tuition funding. My outstanding tuition is $10,000.",
+      "verdict": "Conditions met",
+      "http": 200,
+      "answer": {
+        "status": "no_answer",
+        "text": "This organization’s PDFs don’t contain enough information to answer that question.",
+        "references": []
+      },
+      "ms": 17527,
+      "pass": false,
+      "calls": [
+        {
+          "stage": "question_plan",
+          "ms": 5758,
+          "result": {
+            "kind": "decision",
+            "evidenceIds": [
+              "E1",
+              "E2",
+              "E3"
+            ],
+            "policy": "Academic Merit Scholarship Eligibility"
+          }
+        },
+        {
+          "stage": "grounded_answer",
+          "ms": 11667,
+          "result": {
+            "parts": [
+              {
+                "question": "Am I eligible to apply for the Academic Merit Scholarship? I am a continuing Northbridge undergraduate taking 12 credits, with cumulative GPA 3.60 out of 4.00, satisfactory academic progress, no active disciplinary sanction, and no other tuition funding. My outstanding tuition is $10,000.",
+                "claims": [
+                  {
+                    "text": "The applicant meets the eligibility criteria for the Academic Merit Scholarship based on the Northbridge University’s fictional Academic Merit Scholarship Rules.",
+                    "evidenceId": "E1",
+                    "quote": "Official eligibility and renewal rules for Northbridge UniversityNU-FIN-001\n\n# Academic Merit Scholarship Rules\n\n**AWARD Up to 40% of tuition**\n\n**APPLICATION CYCLE 2027-2028 academic year**\n\n### Who is eligible?\n\n- **Enrollment:** Applicants must be admitted to, or currently enrolled in, a full-time undergraduate degree at Northbridge University. Full-time means at least **12 credits per term**.\n- **Academic performance:** Continuing students need a cumulative **GPA of at least 3.50/4.00** at *"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "stage": "laya",
+          "ms": 0,
+          "result": []
+        },
+        {
+          "stage": "laya",
+          "ms": 0,
+          "result": []
+        }
+      ]
+    },
+    {
+      "id": "h-book",
+      "org": "Harborlight Makerspace",
+      "question": "How do I reserve the laser cutter?",
+      "contains": [
+        "Member Hub",
+        "Equipment"
+      ],
+      "status": "answered",
+      "http": 200,
+      "answer": {
+        "status": "no_answer",
+        "text": "This organization’s PDFs don’t contain enough information to answer that question.",
+        "references": []
+      },
+      "ms": 24837,
+      "pass": false,
+      "calls": [
+        {
+          "stage": "question_plan",
+          "ms": 6136,
+          "result": {
+            "kind": "insufficient",
+            "evidenceIds": [
+              "E1",
+              "E2",
+              "E3"
+            ],
+            "policy": "Laser cutter reservation and usage guidelines"
+          }
+        },
+        {
+          "stage": "grounded_answer",
+          "ms": 15208,
+          "result": {
+            "parts": [
+              {
+                "question": "How do I reserve the laser cutter?",
+                "claims": [
+                  {
+                    "text": "To reserve the laser cutter, members must first sign in to the **Harborlight Member Hub** and navigate to **Equipment > Book a Station**.",
+                    "evidenceId": "E1",
+                    "quote": "Active members sign in to the **Harborlight Member Hub** and navigate to **Equipment > Book a Station**."
+                  }
+                ]
+              },
+              {
+                "question": "How do I reserve the laser cutter?",
+                "claims": [
+                  {
+                    "text": "After selecting a trained-for machine, members must select an available date and start time, review the machine-specific checklist, and confirm the reservation.",
+                    "evidenceId": "E2",
+                    "quote": "A confirmation email contains the station name, start time, and booking reference. Arrive **10 minutes** **early** to complete setup and material inspection."
+                  }
+                ]
+              },
+              {
+                "question": "How do I reserve the laser cutter?",
+                "claims": [
+                  {
+                    "text": "Maximum booking durations are as follows:”, 180 minutes maximum for 3D printers, 90 minutes maximum for laser cutters,”, 2 hours before for front desk hours,”, 15 minutes after 15 minutes,”, “Machine-specific safety clearance is required before booking. See **Workshop Safety Rules**; a reservation does not substitute for orientation or staff authorization.” , “Document status: Fictional example prepared solely for testing retrieval, policy comparison, and document-based question answering.” 10-1",
+                    "evidenceId": "E3",
+                    "quote": "The fictional service desk reference code is **HARBOR-42**. It is a staff reference identifier, **not an entry** **or equipment unlock code**."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "stage": "laya",
+          "ms": 3127,
+          "result": [
+            {
+              "supported": {
+                "type": "noul",
+                "noul": 0.1527,
+                "confidence": 0.8473,
+                "answer_confidence": 0.8473,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "stage": "laya",
+          "ms": 220,
+          "result": [
+            {
+              "relevant": {
+                "type": "noul",
+                "noul": 0.197,
+                "confidence": 0.803,
+                "answer_confidence": 0.803,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "h-compare",
+      "org": "Harborlight Makerspace",
+      "question": "Compare the maximum laser cutter and 3D printer reservation durations.",
+      "contains": [
+        "90",
+        "180"
+      ],
+      "status": "answered",
+      "http": 200,
+      "answer": {
+        "status": "no_answer",
+        "text": "This organization’s PDFs don’t contain enough information to answer that question.",
+        "references": []
+      },
+      "ms": 21592,
+      "pass": false,
+      "calls": [
+        {
+          "stage": "question_plan",
+          "ms": 7233,
+          "result": {
+            "kind": "decision",
+            "evidenceIds": [
+              "E1",
+              "E2",
+              "E3"
+            ],
+            "policy": "Laser cutter reservation durations are limited to 90 minutes, with a maximum of one laser cutter slot per reservation. 3"
+          }
+        },
+        {
+          "stage": "grounded_answer",
+          "ms": 11042,
+          "result": {
+            "parts": [
+              {
+                "question": "What is the maximum laser cutter reservation duration, according to the provided documents?",
+                "claims": [
+                  {
+                    "text": "The maximum laser cutter reservation duration is 90 minutes.",
+                    "evidenceId": "E1",
+                    "quote": "A confirmation email contains the station name, start time, and booking reference. Arrive 10 minutes early to complete setup and material inspection."
+                  }
+                ]
+              },
+              {
+                "question": "How many guests are allowed per visit at the 3D printer?",
+                "claims": [
+                  {
+                    "text": "Each active member may bring up to 2 guests per visit.",
+                    "evidenceId": "E2",
+                    "quote": "Each active member may bring up to 2 guests per visit."
+                  }
+                ]
+              },
+              {
+                "question": "What is the minimum membership requirement for reserving equipment?",
+                "claims": [
+                  {
+                    "text": "An active adult membership is required to reserve equipment.",
+                    "evidenceId": "E3",
+                    "quote": "An active adult membership is required to reserve equipment."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "stage": "laya",
+          "ms": 0,
+          "result": []
+        },
+        {
+          "stage": "laya",
+          "ms": 3257,
+          "result": [
+            {
+              "relevant": {
+                "type": "noul",
+                "noul": 0.1897,
+                "confidence": 0.8103,
+                "answer_confidence": 0.8103,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "h-limit",
+      "org": "Harborlight Makerspace",
+      "question": "Can I book a single 120-minute laser cutter reservation? I am an active adult member with current general safety orientation, recorded laser cutter induction, no other upcoming laser cutter booking, and closed-toe shoes.",
+      "verdict": "Conditions not met",
+      "http": 200,
+      "answer": {
+        "status": "answered",
+        "text": "The facts you provided do not meet all the required policy conditions.\n\nLaser cutter: maximum 90 minutes per reservation, including setup and cleanup. [[E1]]\n\nMembers may hold only one upcoming laser cutter slot at a time. [[E2]]\n\n3D printer: maximum 180 minutes per standard reservation, including setup and cleanup. [[E3]]\n\nJobs exceeding 180 minutes require advance written staff approval and a separate supervised schedule. [[E4]]\n\nBack-to-back bookings to bypass either time limit are not permitted. [[E5]]\n\nCancel or reschedule in the Member Hub at least 2 hours before the start. [[E6]]\n\nMachine-specific safety clearance is required before booking. [[E7]]\n\nMembers with approved extended-access credentials may enter certain common areas beyond desk hours; shared machine use still requires applicable supervision and booking rules. [[E8]]\n\nAn active adult membership is required to reserve equipment. [[E9]]\n\nMembers must check in using their own membership card and must not lend it to others. [[E10]]\n\nEach active member may bring up to 2 guests per visit. [[E11]]\n\nGuests may observe demonstrations but cannot operate the laser cutter, 3D printer, or other restricted equipment. [[E12]]\n\nGuests under age 16 must also be accompanied by a parent or legal guardian. [[E13]]\n\nAll members must follow Workshop Safety Rules. [[E14]]\n\nAll new members must attend a 60-minute general safety orientation before entering work zones without a staff escort. [[E15]]\n\nBefore operating a laser cutter, 3D printer, or power tool, members must also pass the machine-specific induction and have the clearance recorded in the Member Hub. [[E16]]\n\nOrientation must be refreshed every 12 months, or earlier after a serious safety incident or major equipment change. [[E17]]\n\nNever use gloves near rotating machinery where entanglement is possible. [[E18]]\n\nA first-time user may only operate a machine under direct staff supervision until the relevant induction is signed off. [[E19]]\n\nGuests may observe but never operate restricted machinery. [[E20]]",
+        "references": [
+          {
+            "id": "E1",
+            "name": "Equipment Booking Guide.pdf",
+            "page": 1,
+            "quote": "Laser cutter: maximum 90 minutes per reservation, including setup and cleanup."
+          },
+          {
+            "id": "E2",
+            "name": "Equipment Booking Guide.pdf",
+            "page": 1,
+            "quote": "Members may hold only one upcoming laser cutter slot at a time."
+          },
+          {
+            "id": "E3",
+            "name": "Equipment Booking Guide.pdf",
+            "page": 1,
+            "quote": "3D printer: maximum 180 minutes per standard reservation, including setup and cleanup."
+          },
+          {
+            "id": "E4",
+            "name": "Equipment Booking Guide.pdf",
+            "page": 1,
+            "quote": "Jobs exceeding 180 minutes require advance written staff approval and a separate supervised schedule."
+          },
+          {
+            "id": "E5",
+            "name": "Equipment Booking Guide.pdf",
+            "page": 1,
+            "quote": "Back-to-back bookings to bypass either time limit are not permitted."
+          },
+          {
+            "id": "E6",
+            "name": "Equipment Booking Guide.pdf",
+            "page": 1,
+            "quote": "Cancel or reschedule in the Member Hub at least 2 hours before the start."
+          },
+          {
+            "id": "E7",
+            "name": "Equipment Booking Guide.pdf",
+            "page": 1,
+            "quote": "Machine-specific safety clearance is required before booking."
+          },
+          {
+            "id": "E8",
+            "name": "Membership and Hours.pdf",
+            "page": 1,
+            "quote": "Members with approved extended-access credentials may enter certain common areas beyond desk hours; shared machine use still requires applicable supervision and booking rules."
+          },
+          {
+            "id": "E9",
+            "name": "Membership and Hours.pdf",
+            "page": 1,
+            "quote": "An active adult membership is required to reserve equipment."
+          },
+          {
+            "id": "E10",
+            "name": "Membership and Hours.pdf",
+            "page": 1,
+            "quote": "Members must check in using their own membership card and must not lend it to others."
+          },
+          {
+            "id": "E11",
+            "name": "Membership and Hours.pdf",
+            "page": 1,
+            "quote": "Each active member may bring up to 2 guests per visit."
+          },
+          {
+            "id": "E12",
+            "name": "Membership and Hours.pdf",
+            "page": 1,
+            "quote": "Guests may observe demonstrations but cannot operate the laser cutter, 3D printer, or other restricted equipment."
+          },
+          {
+            "id": "E13",
+            "name": "Membership and Hours.pdf",
+            "page": 1,
+            "quote": "Guests under age 16 must also be accompanied by a parent or legal guardian."
+          },
+          {
+            "id": "E14",
+            "name": "Membership and Hours.pdf",
+            "page": 1,
+            "quote": "All members must follow Workshop Safety Rules."
+          },
+          {
+            "id": "E15",
+            "name": "Workshop Safety Rules.pdf",
+            "page": 1,
+            "quote": "All new members must attend a 60-minute general safety orientation before entering work zones without a staff escort."
+          },
+          {
+            "id": "E16",
+            "name": "Workshop Safety Rules.pdf",
+            "page": 1,
+            "quote": "Before operating a laser cutter, 3D printer, or power tool, members must also pass the machine-specific induction and have the clearance recorded in the Member Hub."
+          },
+          {
+            "id": "E17",
+            "name": "Workshop Safety Rules.pdf",
+            "page": 1,
+            "quote": "Orientation must be refreshed every 12 months, or earlier after a serious safety incident or major equipment change."
+          },
+          {
+            "id": "E18",
+            "name": "Workshop Safety Rules.pdf",
+            "page": 1,
+            "quote": "Never use gloves near rotating machinery where entanglement is possible."
+          },
+          {
+            "id": "E19",
+            "name": "Workshop Safety Rules.pdf",
+            "page": 1,
+            "quote": "A first-time user may only operate a machine under direct staff supervision until the relevant induction is signed off."
+          },
+          {
+            "id": "E20",
+            "name": "Workshop Safety Rules.pdf",
+            "page": 1,
+            "quote": "Guests may observe but never operate restricted machinery."
+          }
+        ],
+        "decision": {
+          "verdict": "Conditions not met",
+          "checks": [
+            {
+              "label": "Laser cutter — applicability",
+              "method": "Choice",
+              "result": "applies",
+              "score": 0.8116
+            },
+            {
+              "label": "Laser cutter",
+              "method": "Rule",
+              "result": "Fail"
+            },
+            {
+              "label": "Members may hold only one upcoming laser cutter slot at a time. — applicability",
+              "method": "Choice",
+              "result": "applies",
+              "score": 0.7083
+            },
+            {
+              "label": "Members may hold only one upcoming laser cutter slot at a time.",
+              "method": "Boolean (Noul)",
+              "result": "Uncertain",
+              "score": 0.9815
+            },
+            {
+              "label": "3D printer — applicability",
+              "method": "Choice",
+              "result": "irrelevant",
+              "score": 0.5707
+            },
+            {
+              "label": "3D printer",
+              "method": "Choice",
+              "result": "Uncertain",
+              "score": 0.5707
+            },
+            {
+              "label": "Jobs exceeding 180 minutes require advance written staff approval and a separate supervised schedule — applicability",
+              "method": "Choice",
+              "result": "irrelevant",
+              "score": 0.5707
+            },
+            {
+              "label": "Jobs exceeding 180 minutes require advance written staff approval and a separate supervised schedule",
+              "method": "Choice",
+              "result": "Uncertain",
+              "score": 0.5707
+            },
+            {
+              "label": "Back-to-back bookings to bypass either time limit are not permitted. — applicability",
+              "method": "Choice",
+              "result": "applies",
+              "score": 0.7259
+            },
+            {
+              "label": "Back-to-back bookings to bypass either time limit are not permitted.",
+              "method": "Choice",
+              "result": "Missing",
+              "score": 0.7259
+            },
+            {
+              "label": "Cancel or reschedule in the Member Hub at least 2 hours before the start. — applicability",
+              "method": "Choice",
+              "result": "irrelevant",
+              "score": 0.5761
+            },
+            {
+              "label": "Cancel or reschedule in the Member Hub at least 2 hours before the start.",
+              "method": "Choice",
+              "result": "Uncertain",
+              "score": 0.5761
+            },
+            {
+              "label": "Machine-specific safety clearance is required before booking. — applicability",
+              "method": "Choice",
+              "result": "irrelevant",
+              "score": 0.5761
+            },
+            {
+              "label": "Machine-specific safety clearance is required before booking.",
+              "method": "Choice",
+              "result": "Uncertain",
+              "score": 0.5761
+            },
+            {
+              "label": "Members with approved extended-access credentials may enter certain common areas beyond desk hours;  — applicability",
+              "method": "Choice",
+              "result": "applies",
+              "score": 0.5604
+            },
+            {
+              "label": "Members with approved extended-access credentials may enter certain common areas beyond desk hours; ",
+              "method": "Choice",
+              "result": "Uncertain",
+              "score": 0.5604
+            },
+            {
+              "label": "An active adult membership is required to reserve equipment. — applicability",
+              "method": "Choice",
+              "result": "applies",
+              "score": 0.8905
+            },
+            {
+              "label": "An active adult membership is required to reserve equipment.",
+              "method": "Choice",
+              "result": "Missing",
+              "score": 0.8905
+            },
+            {
+              "label": "Members must check in using their own membership card and must not lend it to others. — applicability",
+              "method": "Choice",
+              "result": "applies",
+              "score": 0.9438
+            },
+            {
+              "label": "Members must check in using their own membership card and must not lend it to others.",
+              "method": "Choice",
+              "result": "Missing",
+              "score": 0.9438
+            },
+            {
+              "label": "Each active member may bring up to 2 guests per visit. — applicability",
+              "method": "Choice",
+              "result": "applies",
+              "score": 0.7443
+            },
+            {
+              "label": "Each active member may bring up to 2 guests per visit.",
+              "method": "Choice",
+              "result": "Missing",
+              "score": 0.7443
+            },
+            {
+              "label": "Guests may observe demonstrations but cannot operate the laser cutter, 3D printer, or other restrict — applicability",
+              "method": "Choice",
+              "result": "applies",
+              "score": 0.5935
+            },
+            {
+              "label": "Guests may observe demonstrations but cannot operate the laser cutter, 3D printer, or other restrict",
+              "method": "Choice",
+              "result": "Uncertain",
+              "score": 0.5935
+            },
+            {
+              "label": "Guests under age 16 must also be accompanied by a parent or legal guardian. — applicability",
+              "method": "Choice",
+              "result": "applies",
+              "score": 0.8905
+            },
+            {
+              "label": "Guests under age 16 must also be accompanied by a parent or legal guardian.",
+              "method": "Choice",
+              "result": "Missing",
+              "score": 0.8905
+            },
+            {
+              "label": "All members must follow Workshop Safety Rules. — applicability",
+              "method": "Choice",
+              "result": "applies",
+              "score": 0.54
+            },
+            {
+              "label": "All members must follow Workshop Safety Rules.",
+              "method": "Choice",
+              "result": "Uncertain",
+              "score": 0.54
+            },
+            {
+              "label": "All new members must attend a 60-minute general safety orientation before entering work zones withou — applicability",
+              "method": "Choice",
+              "result": "irrelevant",
+              "score": 0.5127
+            },
+            {
+              "label": "All new members must attend a 60-minute general safety orientation before entering work zones withou",
+              "method": "Choice",
+              "result": "Uncertain",
+              "score": 0.5127
+            },
+            {
+              "label": "Before operating a laser cutter, 3D printer, or power tool, members must also pass the machine-speci — applicability",
+              "method": "Choice",
+              "result": "applies",
+              "score": 0.8351
+            },
+            {
+              "label": "Before operating a laser cutter, 3D printer, or power tool, members must also pass the machine-speci",
+              "method": "Choice",
+              "result": "Missing",
+              "score": 0.8351
+            },
+            {
+              "label": "Orientation must be refreshed every 12 months, or earlier after a serious safety incident or major e — applicability",
+              "method": "Choice",
+              "result": "applies",
+              "score": 0.7936
+            },
+            {
+              "label": "Orientation must be refreshed every 12 months, or earlier after a serious safety incident or major e",
+              "method": "Choice",
+              "result": "Missing",
+              "score": 0.7936
+            },
+            {
+              "label": "Never use gloves near rotating machinery where entanglement is possible. — applicability",
+              "method": "Choice",
+              "result": "applies",
+              "score": 0.7517
+            },
+            {
+              "label": "Never use gloves near rotating machinery where entanglement is possible.",
+              "method": "Choice",
+              "result": "Missing",
+              "score": 0.7517
+            },
+            {
+              "label": "A first-time user may only operate a machine under direct staff supervision until the relevant induc — applicability",
+              "method": "Choice",
+              "result": "applies",
+              "score": 0.5995
+            },
+            {
+              "label": "A first-time user may only operate a machine under direct staff supervision until the relevant induc",
+              "method": "Choice",
+              "result": "Uncertain",
+              "score": 0.5995
+            },
+            {
+              "label": "Guests may observe but never operate restricted machinery. — applicability",
+              "method": "Choice",
+              "result": "applies",
+              "score": 0.629
+            },
+            {
+              "label": "Guests may observe but never operate restricted machinery.",
+              "method": "Choice",
+              "result": "Missing",
+              "score": 0.629
+            }
+          ]
+        }
+      },
+      "ms": 41284,
+      "pass": true,
+      "calls": [
+        {
+          "stage": "question_plan",
+          "ms": 5509,
+          "result": {
+            "kind": "insufficient",
+            "evidenceIds": [
+              "E1",
+              "E2",
+              "E3"
+            ],
+            "policy": "Single Laser Cutter Reservation"
+          }
+        },
+        {
+          "stage": "policy_facts",
+          "ms": 15252,
+          "result": {
+            "R1": "Can I book a single 120-minute laser cutter reservation?",
+            "R2": "I am an active adult member with current general safety orientation, recorded laser cutter induction, no other upcoming laser cutter booking, and closed-toe shoes.",
+            "R3": "I am a member with approved extended-access credentials, may enter certain common areas beyond desk hours; shared machine use still requires applicable supervision and booking rules.",
+            "R4": "I am a member with approved extended-access credentials, may enter certain common areas beyond desk hours; shared machine use still requires applicable supervision and booking rules.",
+            "R5": "I am a member with approved extended-access credentials, may enter certain common areas beyond desk hours; shared machine use still requires applicable supervision and booking rules.",
+            "R6": "I must cancel or reschedule in the Member Hub at least 2 hours before the start.",
+            "R7": "I must follow Workshop Safety Rules.",
+            "R8": "Members with approved extended-access credentials may enter certain common areas beyond desk hours; shared machine use still requires applicable supervision and booking rules.",
+            "R9": "I am an active adult membership is required to reserve equipment.",
+            "R10": "Members must check in using their own membership card and must not lend it to others.",
+            "R11": "I am an active adult membership is required to reserve equipment.",
+            "R12": "Guests may observe demonstrations but cannot operate the laser cutter, 3D printer, or other restricted equipment.",
+            "R13": "I must also follow Workshop Safety Rules.",
+            "R14": "All members must follow Workshop Safety Rules.",
+            "R15": "All new members must attend a 60-minute general safety orientation before entering work zones without a staff escort.",
+            "R16": "Before operating a laser cutter, 3D printer, or power tool, members must also pass the machine-specific induction and have the clearance recorded in the Member Hub.",
+            "R17": "Orientation must be refreshed every 12 months, or earlier after a serious safety incident or major equipment change.",
+            "R18": "Never use gloves near rotating machinery where entanglement is possible.",
+            "R19": "A first-time user may only operate a machine under direct staff supervision until the relevant induction is signed off.",
+            "R20": "Guests may observe but never operate restricted machinery."
+          }
+        },
+        {
+          "stage": "laya",
+          "ms": 7601,
+          "result": [
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.8116,
+                  "irrelevant": 0.1884
+                },
+                "confidence": 0.3018,
+                "answer_confidence": 0.8116,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.6232
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.7013,
+                "confidence": 0.7013,
+                "answer_confidence": 0.7013,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.7083,
+                  "irrelevant": 0.2917
+                },
+                "confidence": 0.1291,
+                "answer_confidence": 0.7083,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.4166
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.4628,
+                "confidence": 0.5372,
+                "answer_confidence": 0.5372,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "irrelevant",
+                "probabilities": {
+                  "applies": 0.4293,
+                  "irrelevant": 0.5707
+                },
+                "confidence": 0.0145,
+                "answer_confidence": 0.5707,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.1414
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.3006,
+                "confidence": 0.6994,
+                "answer_confidence": 0.6994,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "irrelevant",
+                "probabilities": {
+                  "applies": 0.4293,
+                  "irrelevant": 0.5707
+                },
+                "confidence": 0.0145,
+                "answer_confidence": 0.5707,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.1414
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.3006,
+                "confidence": 0.6994,
+                "answer_confidence": 0.6994,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.7259,
+                  "irrelevant": 0.2741
+                },
+                "confidence": 0.1528,
+                "answer_confidence": 0.7259,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.4518
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.6598,
+                "confidence": 0.6598,
+                "answer_confidence": 0.6598,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "irrelevant",
+                "probabilities": {
+                  "applies": 0.4239,
+                  "irrelevant": 0.5761
+                },
+                "confidence": 0.0168,
+                "answer_confidence": 0.5761,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.1522
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.2346,
+                "confidence": 0.7654,
+                "answer_confidence": 0.7654,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "irrelevant",
+                "probabilities": {
+                  "applies": 0.4239,
+                  "irrelevant": 0.5761
+                },
+                "confidence": 0.0168,
+                "answer_confidence": 0.5761,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.1522
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.2346,
+                "confidence": 0.7654,
+                "answer_confidence": 0.7654,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.5604,
+                  "irrelevant": 0.4396
+                },
+                "confidence": 0.0106,
+                "answer_confidence": 0.5604,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.1208
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.2751,
+                "confidence": 0.7249,
+                "answer_confidence": 0.7249,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.8905,
+                  "irrelevant": 0.1095
+                },
+                "confidence": 0.5016,
+                "answer_confidence": 0.8905,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.781
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.7931,
+                "confidence": 0.7931,
+                "answer_confidence": 0.7931,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.9438,
+                  "irrelevant": 0.0562
+                },
+                "confidence": 0.6879,
+                "answer_confidence": 0.9438,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.8876
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.8338,
+                "confidence": 0.8338,
+                "answer_confidence": 0.8338,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.7443,
+                  "irrelevant": 0.2557
+                },
+                "confidence": 0.1798,
+                "answer_confidence": 0.7443,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.4886
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.5495,
+                "confidence": 0.5495,
+                "answer_confidence": 0.5495,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.5935,
+                  "irrelevant": 0.4065
+                },
+                "confidence": 0.0254,
+                "answer_confidence": 0.5935,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.187
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.6533,
+                "confidence": 0.6533,
+                "answer_confidence": 0.6533,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.8905,
+                  "irrelevant": 0.1095
+                },
+                "confidence": 0.5016,
+                "answer_confidence": 0.8905,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.781
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.7931,
+                "confidence": 0.7931,
+                "answer_confidence": 0.7931,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.54,
+                  "irrelevant": 0.46
+                },
+                "confidence": 0.0046,
+                "answer_confidence": 0.54,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.08
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.5204,
+                "confidence": 0.5204,
+                "answer_confidence": 0.5204,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "irrelevant",
+                "probabilities": {
+                  "applies": 0.4873,
+                  "irrelevant": 0.5127
+                },
+                "confidence": 0.0005,
+                "answer_confidence": 0.5127,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.0254
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.1911,
+                "confidence": 0.8089,
+                "answer_confidence": 0.8089,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.8351,
+                  "irrelevant": 0.1649
+                },
+                "confidence": 0.3542,
+                "answer_confidence": 0.8351,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.6702
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.7007,
+                "confidence": 0.7007,
+                "answer_confidence": 0.7007,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.7936,
+                  "irrelevant": 0.2064
+                },
+                "confidence": 0.2654,
+                "answer_confidence": 0.7936,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.5872
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.5322,
+                "confidence": 0.5322,
+                "answer_confidence": 0.5322,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.7517,
+                  "irrelevant": 0.2483
+                },
+                "confidence": 0.1915,
+                "answer_confidence": 0.7517,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.5034
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.4447,
+                "confidence": 0.5553,
+                "answer_confidence": 0.5553,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.5995,
+                  "irrelevant": 0.4005
+                },
+                "confidence": 0.0288,
+                "answer_confidence": 0.5995,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.199
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.3281,
+                "confidence": 0.6719,
+                "answer_confidence": 0.6719,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.629,
+                  "irrelevant": 0.371
+                },
+                "confidence": 0.0486,
+                "answer_confidence": 0.629,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.258
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.3233,
+                "confidence": 0.6767,
+                "answer_confidence": 0.6767,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "stage": "laya",
+          "ms": 413,
+          "result": [
+            {
+              "compliance": {
+                "type": "noul",
+                "noul": 0.9815,
+                "confidence": 0.9815,
+                "answer_confidence": 0.9815,
+                "action": {
+                  "act_probability": 1
+                }
+              },
+              "violation": {
+                "type": "noul",
+                "noul": 0.9417,
+                "confidence": 0.9417,
+                "answer_confidence": 0.9417,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "stage": "grounded_answer",
+          "ms": 12414,
+          "result": {
+            "parts": [
+              {
+                "question": "Can I book a single 120-minute laser cutter reservation? I am an active adult member with current general safety orientation, recorded laser cutter induction, no other upcoming laser cutter booking, and closed-toe shoes.",
+                "claims": []
+              },
+              {
+                "question": "I am an active adult member with current general safety orientation, recorded laser cutter induction, no other upcoming laser cutter booking, and closed-toe shoes.  I am looking to book a single 120-minute laser cutter reservation.",
+                "claims": []
+              },
+              {
+                "question": "I am an active adult member with current general safety orientation, recorded laser cutter induction, no other upcoming laser cutter booking, and closed-toe shoes. I am looking to book a single 120-minute laser cutter reservation.",
+                "claims": []
+              },
+              {
+                "question": "I am an active adult member with current general safety orientation, recorded laser cutter induction, no other upcoming laser cutter booking, and closed-toe shoes. I am looking to book a single 120-minute laser cutter reservation.",
+                "claims": []
+              }
+            ]
+          }
+        },
+        {
+          "stage": "laya",
+          "ms": 0,
+          "result": []
+        },
+        {
+          "stage": "laya",
+          "ms": 0,
+          "result": []
+        }
+      ]
+    },
+    {
+      "id": "m-hours",
+      "org": "Cedar Grove Museum",
+      "question": "What are your opening hours on weekends?",
+      "contains": [
+        "09:00",
+        "18:00"
+      ],
+      "status": "answered",
+      "http": 200,
+      "answer": {
+        "status": "no_answer",
+        "text": "This organization’s PDFs don’t contain enough information to answer that question.",
+        "references": []
+      },
+      "ms": 21380,
+      "pass": false,
+      "calls": [
+        {
+          "stage": "question_plan",
+          "ms": 5510,
+          "result": {
+            "kind": "decision",
+            "evidenceIds": [
+              "E1",
+              "E2",
+              "E3"
+            ],
+            "policy": "Opening hours on weekends are 09:00-18:00."
+          }
+        },
+        {
+          "stage": "grounded_answer",
+          "ms": 15819,
+          "result": {
+            "parts": [
+              {
+                "question": "What are the opening hours on weekends?",
+                "claims": [
+                  {
+                    "text": "Cedar Grove Museum’s opening hours on weekends are as follows:",
+                    "evidenceId": "E1",
+                    "quote": "## Cedar Grove MuseumCG-VIS-001\n\n**CG** FICTIONAL POLICY & SERVICE DOCUMENT Effective 01 Nov 2026\n\n# Visitor Hours and Tickets\n\nFictional public opening hours, admission fees, and ticketing policies.\n\n**WEEKDAY FRONT DESK 10:00-17:00**\n\n**WEEKEND FRONT DESK 09:00-18:00**. Last entry is **45 minutes** before the front desk closes.\n- The museum is closed on 1 January and 25 December. Special exhibitions may have separately advertised entry times.\n### General admission prices\n\n- **Adult (ages 18-64"
+                  }
+                ]
+              },
+              {
+                "question": "What are the opening hours on weekends?",
+                "claims": [
+                  {
+                    "text": "The museum opens at 10:00 and closes at 17:00 on weekends.",
+                    "evidenceId": "E1",
+                    "quote": "## Cedar Grove MuseumCG-VIS-001\n\n**CG** FICTIONAL POLICY & SERVICE DOCUMENT Effective 01 Nov 2026\n\n# Visitor Hours and Tickets\n\nFictional public opening hours, admission fees, and ticketing policies.\n\n**WEEKDAY FRONT DESK 10:00-17:00**\n\n**WEEKEND FRONT DESK 09:00-18:00**. Last entry is **45 minutes** before the front desk closes.\n- The museum is closed on 1 January and 25 December. Special exhibitions may have separately advertised entry times.\n### General admission prices\n\n- **Adult (ages 18-64"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "stage": "laya",
+          "ms": 0,
+          "result": []
+        },
+        {
+          "stage": "laya",
+          "ms": 0,
+          "result": []
+        }
+      ]
+    },
+    {
+      "id": "m-mixed",
+      "org": "Cedar Grove Museum",
+      "question": "When does the museum open on weekdays? Also when do monkeys visit the museum?",
+      "contains": [
+        "10:00",
+        "monkey"
+      ],
+      "status": "answered",
+      "http": 200,
+      "answer": {
+        "status": "no_answer",
+        "text": "This organization’s PDFs don’t contain enough information to answer that question.",
+        "references": []
+      },
+      "ms": 32776,
+      "pass": false,
+      "calls": [
+        {
+          "stage": "question_plan",
+          "ms": 5435,
+          "result": {
+            "kind": "insufficient",
+            "evidenceIds": [
+              "E1",
+              "E2",
+              "E3"
+            ],
+            "policy": "Museum Opening Hours and Monkey Visits"
+          }
+        },
+        {
+          "stage": "grounded_answer",
+          "ms": 11555,
+          "result": {
+            "parts": [
+              {
+                "question": "When does the museum open on weekdays?",
+                "claims": [
+                  {
+                    "text": "The museum opens on weekdays at 10:00 and closes at 17:00.",
+                    "evidenceId": "E1",
+                    "quote": "The visitor front desk opens at 10:00 and closes at 17:00."
+                  }
+                ]
+              },
+              {
+                "question": "When do monkeys visit the museum?",
+                "claims": [
+                  {
+                    "text": "Monkeys do not visit the museum.",
+                    "evidenceId": "E2",
+                    "quote": "The museum is closed on 1 January and 25 December."
+                  }
+                ]
+              },
+              {
+                "question": "When does the museum open on weekdays?",
+                "claims": [
+                  {
+                    "text": "The museum opens on weekdays at 10:00 and closes at 17:00.",
+                    "evidenceId": "E1",
+                    "quote": "The visitor front desk opens at 10:00 and closes at 17:00."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "stage": "laya",
+          "ms": 14751,
+          "result": [
+            {
+              "supported": {
+                "type": "noul",
+                "noul": 0.1,
+                "confidence": 0.9,
+                "answer_confidence": 0.9,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "supported": {
+                "type": "noul",
+                "noul": 0.1,
+                "confidence": 0.9,
+                "answer_confidence": 0.9,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "stage": "laya",
+          "ms": 916,
+          "result": [
+            {
+              "relevant": {
+                "type": "noul",
+                "noul": 0.3313,
+                "confidence": 0.6687,
+                "answer_confidence": 0.6687,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "relevant": {
+                "type": "noul",
+                "noul": 0.3313,
+                "confidence": 0.6687,
+                "answer_confidence": 0.6687,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "m-isolation",
+      "org": "Cedar Grove Museum",
+      "question": "What is Northbridge University's library desk reference code?",
+      "status": "no_answer",
+      "http": 200,
+      "answer": {
+        "status": "no_answer",
+        "text": "This organization’s PDFs don’t contain enough information to answer that question.",
+        "references": []
+      },
+      "ms": 34941,
+      "pass": true,
+      "calls": [
+        {
+          "stage": "question_plan",
+          "ms": 12560,
+          "result": {
+            "kind": "decision",
+            "evidenceIds": [
+              "E1",
+              "E2",
+              "E3"
+            ],
+            "policy": "The visitor request is for the library desk reference code CEDAR-63. It is for service desk identification and must not,"
+          }
+        },
+        {
+          "stage": "grounded_answer",
+          "ms": 14786,
+          "result": {
+            "parts": [
+              {
+                "question": "What is the desk reference code for Northbridge University's library?",
+                "claims": [
+                  {
+                    "text": "The desk reference code for Northbridge University's library is CEDAR-63.",
+                    "evidenceId": "E1",
+                    "quote": "The fictional front desk reference code is CEDAR-63. It is for service desk identification and must not be used as a door or security code."
+                  }
+                ]
+              },
+              {
+                "question": "What is the maximum number of participants allowed in a school group tour?",
+                "claims": [
+                  {
+                    "text": "The maximum number of participants allowed in a school group tour is 30.",
+                    "evidenceId": "E3",
+                    "quote": "The maximum guided group size is 30 participants total, including students and accompanying adults."
+                  }
+                ]
+              },
+              {
+                "question": "What is the price for an adult admission?",
+                "claims": [
+                  {
+                    "text": "The fictional school group rate is $6 per student.",
+                    "evidenceId": "E3",
+                    "quote": "The fictional school group rate is $6 per student."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "stage": "laya",
+          "ms": 7094,
+          "result": [
+            {
+              "supported": {
+                "type": "noul",
+                "noul": 0.3794,
+                "confidence": 0.6206,
+                "answer_confidence": 0.6206,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "supported": {
+                "type": "noul",
+                "noul": 0.7394,
+                "confidence": 0.7394,
+                "answer_confidence": 0.7394,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "stage": "laya",
+          "ms": 440,
+          "result": [
+            {
+              "relevant": {
+                "type": "noul",
+                "noul": 0.112,
+                "confidence": 0.888,
+                "answer_confidence": 0.888,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "relevant": {
+                "type": "noul",
+                "noul": 0.0607,
+                "confidence": 0.9393,
+                "answer_confidence": 0.9393,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "relevant": {
+                "type": "noul",
+                "noul": 0.0176,
+                "confidence": 0.9824,
+                "answer_confidence": 0.9824,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,298 @@
+{
+  "startedAt": "2026-11-07T18:06:25.949Z",
+  "implementation": "04dc7f8668aa69969687c12e03daa7a0a144a39f615b2c078de732859424e668",
+  "provider": "gemini",
+  "model": "gemini-3.1-flash-lite",
+  "cloudCalls": 6,
+  "cases": [
+    {
+      "id": "n-hours",
+      "org": "Northbridge University",
+      "question": "What are your library opening hours on weekdays?",
+      "contains": [
+        "08:00",
+        "18:00"
+      ],
+      "status": "answered",
+      "http": 200,
+      "answer": {
+        "status": "answered",
+        "text": "On weekdays, the library front desk is open from 08:00 to 18:00. [[E1]]",
+        "references": [
+          {
+            "id": "E1",
+            "name": "Library Hours and Access.pdf",
+            "page": 1,
+            "quote": "Monday-Friday: front desk opens at 08:00 and closes at 18:00."
+          }
+        ]
+      },
+      "ms": 30946,
+      "pass": true,
+      "calls": [
+        {
+          "stage": "question_plan",
+          "ms": 1632,
+          "result": {
+            "kind": "factual",
+            "evidenceIds": [
+              "E1"
+            ],
+            "policy": ""
+          }
+        },
+        {
+          "stage": "grounded_answer",
+          "ms": 14614,
+          "result": {
+            "parts": [
+              {
+                "question": "What are your library opening hours on weekdays?",
+                "claims": [
+                  {
+                    "text": "On weekdays, the library front desk is open from 08:00 to 18:00.",
+                    "evidenceId": "E1",
+                    "quote": "Monday-Friday: front desk opens at 08:00 and closes at 18:00."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "stage": "laya",
+          "ms": 14681,
+          "result": [
+            {
+              "supported": {
+                "type": "noul",
+                "noul": 0.9559,
+                "confidence": 0.9559,
+                "answer_confidence": 0.9559,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "stage": "laya",
+          "ms": 0,
+          "result": []
+        }
+      ]
+    },
+    {
+      "id": "h-book",
+      "org": "Harborlight Makerspace",
+      "question": "How do I reserve the laser cutter?",
+      "contains": [
+        "Member Hub",
+        "Equipment"
+      ],
+      "status": "answered",
+      "http": 200,
+      "answer": {
+        "status": "answered",
+        "text": "An active adult membership is required to reserve the equipment. [[E1]]\n\nI couldn’t verify every detail for “How do I reserve the laser cutter”.",
+        "references": [
+          {
+            "id": "E1",
+            "name": "Membership and Hours.pdf",
+            "page": 1,
+            "quote": "An active adult membership is required to reserve equipment."
+          }
+        ]
+      },
+      "ms": 17516,
+      "pass": false,
+      "calls": [
+        {
+          "stage": "question_plan",
+          "ms": 1721,
+          "result": {
+            "kind": "factual",
+            "evidenceIds": [
+              "E1"
+            ],
+            "policy": ""
+          }
+        },
+        {
+          "stage": "grounded_answer",
+          "ms": 13945,
+          "result": {
+            "parts": [
+              {
+                "question": "How do I reserve the laser cutter?",
+                "claims": [
+                  {
+                    "text": "To reserve the laser cutter, sign in to the Harborlight Member Hub, go to Equipment > Book a Station, choose the machine, select a date and time, review the checklist, and confirm the reservation.",
+                    "evidenceId": "E1",
+                    "quote": "Active members sign in to the Harborlight Member Hub and navigate to Equipment > Book a Station. Choose a trained-for machine, select an available date and start time, review the machine-specific checklist, and confirm the reservation."
+                  },
+                  {
+                    "text": "You must have machine-specific safety clearance before you can book the laser cutter.",
+                    "evidenceId": "E1",
+                    "quote": "Machine-specific safety clearance is required before booking."
+                  },
+                  {
+                    "text": "An active adult membership is required to reserve the equipment.",
+                    "evidenceId": "E2",
+                    "quote": "An active adult membership is required to reserve equipment."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "stage": "laya",
+          "ms": 1321,
+          "result": [
+            {
+              "supported": {
+                "type": "noul",
+                "noul": 0.6532,
+                "confidence": 0.6532,
+                "answer_confidence": 0.6532,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "supported": {
+                "type": "noul",
+                "noul": 0.5312,
+                "confidence": 0.5312,
+                "answer_confidence": 0.5312,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "supported": {
+                "type": "noul",
+                "noul": 0.9286,
+                "confidence": 0.9286,
+                "answer_confidence": 0.9286,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "stage": "laya",
+          "ms": 509,
+          "result": [
+            {
+              "relevant": {
+                "type": "noul",
+                "noul": 0.286,
+                "confidence": 0.714,
+                "answer_confidence": 0.714,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "relevant": {
+                "type": "noul",
+                "noul": 0.3083,
+                "confidence": 0.6917,
+                "answer_confidence": 0.6917,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "m-hours",
+      "org": "Cedar Grove Museum",
+      "question": "What are your opening hours on weekends?",
+      "contains": [
+        "09:00",
+        "18:00"
+      ],
+      "status": "answered",
+      "http": 200,
+      "answer": {
+        "status": "answered",
+        "text": "On Saturdays and Sundays, the visitor front desk is open from 09:00 to 18:00. [[E1]]",
+        "references": [
+          {
+            "id": "E1",
+            "name": "Visitor Hours and Tickets.pdf",
+            "page": 1,
+            "quote": "Saturday-Sunday: the front desk operates 09:00-18:00."
+          }
+        ]
+      },
+      "ms": 24436,
+      "pass": true,
+      "calls": [
+        {
+          "stage": "question_plan",
+          "ms": 9999,
+          "result": {
+            "kind": "factual",
+            "evidenceIds": [
+              "E1"
+            ],
+            "policy": ""
+          }
+        },
+        {
+          "stage": "grounded_answer",
+          "ms": 13880,
+          "result": {
+            "parts": [
+              {
+                "question": "What are your opening hours on weekends?",
+                "claims": [
+                  {
+                    "text": "On Saturdays and Sundays, the visitor front desk is open from 09:00 to 18:00.",
+                    "evidenceId": "E1",
+                    "quote": "Saturday-Sunday: the front desk operates 09:00-18:00."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "stage": "laya",
+          "ms": 548,
+          "result": [
+            {
+              "supported": {
+                "type": "noul",
+                "noul": 0.8271,
+                "confidence": 0.8271,
+                "answer_confidence": 0.8271,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "stage": "laya",
+          "ms": 0,
+          "result": []
+        }
+      ]
+    }
+  ]
+}

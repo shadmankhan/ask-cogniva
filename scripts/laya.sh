@@ -14,4 +14,4 @@ export LAYA_MODELS=english
 export LAYA_DEFAULT_MODEL=english
 export LAYA_DEVICE="${LAYA_DEVICE:-cpu}"
 export LAYA_THREADS="${LAYA_THREADS:-4}"
-exec "$cogniva_local/laya-venv/bin/laya-serve"
+exec node "$(dirname "$0")/laya-server.mjs" "$cogniva_local/laya-venv/bin/laya-serve"

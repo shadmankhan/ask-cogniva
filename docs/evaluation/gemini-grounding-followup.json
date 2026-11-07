@@ -1,0 +1,191 @@
+{
+  "startedAt": "2026-11-07T17:18:12.322Z",
+  "implementation": "79b8a9f7b7434c2bd6080d60c42527b5aba34ed6b45359344f5c2d94231bd56e",
+  "provider": "gemini",
+  "model": "gemini-3.1-flash-lite",
+  "cloudCalls": 4,
+  "cases": [
+    {
+      "id": "h-compare",
+      "org": "Harborlight Makerspace",
+      "question": "Compare the maximum laser cutter and 3D printer reservation durations.",
+      "contains": [
+        "90",
+        "180"
+      ],
+      "status": "answered",
+      "http": 200,
+      "answer": {
+        "status": "answered",
+        "text": "The maximum reservation duration for a laser cutter is 90 minutes. [[E1]]\n\nThe maximum reservation duration for a 3D printer is 180 minutes. [[E2]]",
+        "references": [
+          {
+            "id": "E1",
+            "name": "Equipment Booking Guide.pdf",
+            "page": 1,
+            "quote": "Laser cutter: maximum 90 minutes per reservation"
+          },
+          {
+            "id": "E2",
+            "name": "Equipment Booking Guide.pdf",
+            "page": 1,
+            "quote": "3D printer: maximum 180 minutes per standard reservation"
+          }
+        ]
+      },
+      "ms": 21781,
+      "pass": true,
+      "calls": [
+        {
+          "stage": "question_plan",
+          "ms": 10513,
+          "result": {
+            "kind": "factual",
+            "evidenceIds": [
+              "E1"
+            ],
+            "policy": ""
+          }
+        },
+        {
+          "stage": "grounded_answer",
+          "ms": 4924,
+          "result": {
+            "parts": [
+              {
+                "question": "Compare the maximum laser cutter and 3D printer reservation durations.",
+                "claims": [
+                  {
+                    "text": "The maximum reservation duration for a laser cutter is 90 minutes.",
+                    "evidenceId": "E1",
+                    "quote": "Laser cutter: maximum 90 minutes per reservation"
+                  },
+                  {
+                    "text": "The maximum reservation duration for a 3D printer is 180 minutes.",
+                    "evidenceId": "E1",
+                    "quote": "3D printer: maximum 180 minutes per standard reservation"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "stage": "laya",
+          "ms": 6303,
+          "result": [
+            {
+              "supported": {
+                "type": "noul",
+                "noul": 0.9495,
+                "confidence": 0.9495,
+                "answer_confidence": 0.9495,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "supported": {
+                "type": "noul",
+                "noul": 0.9415,
+                "confidence": 0.9415,
+                "answer_confidence": 0.9415,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "stage": "laya",
+          "ms": 0,
+          "result": []
+        }
+      ]
+    },
+    {
+      "id": "m-mixed",
+      "org": "Cedar Grove Museum",
+      "question": "When does the museum open on weekdays? Also when do monkeys visit the museum?",
+      "contains": [
+        "10:00",
+        "monkey"
+      ],
+      "status": "answered",
+      "http": 200,
+      "answer": {
+        "status": "answered",
+        "text": "The visitor front desk opens at 10:00 on weekdays. [[E1]]\n\nI couldn’t find a supported answer in this organization’s PDFs for “when do monkeys visit the museum”.",
+        "references": [
+          {
+            "id": "E1",
+            "name": "Visitor Hours and Tickets.pdf",
+            "page": 1,
+            "quote": "Monday-Friday: the visitor front desk opens at 10:00 and closes at 17:00."
+          }
+        ]
+      },
+      "ms": 41929,
+      "pass": true,
+      "calls": [
+        {
+          "stage": "question_plan",
+          "ms": 5887,
+          "result": {
+            "kind": "factual",
+            "evidenceIds": [
+              "E1"
+            ],
+            "policy": ""
+          }
+        },
+        {
+          "stage": "grounded_answer",
+          "ms": 35285,
+          "result": {
+            "parts": [
+              {
+                "question": "When does the museum open on weekdays?",
+                "claims": [
+                  {
+                    "text": "The visitor front desk opens at 10:00 on weekdays.",
+                    "evidenceId": "E1",
+                    "quote": "Monday-Friday: the visitor front desk opens at 10:00 and closes at 17:00."
+                  }
+                ]
+              },
+              {
+                "question": "when do monkeys visit the museum?",
+                "claims": []
+              }
+            ]
+          }
+        },
+        {
+          "stage": "laya",
+          "ms": 641,
+          "result": [
+            {
+              "supported": {
+                "type": "noul",
+                "noul": 0.9074,
+                "confidence": 0.9074,
+                "answer_confidence": 0.9074,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "stage": "laya",
+          "ms": 0,
+          "result": []
+        }
+      ]
+    }
+  ]
+}

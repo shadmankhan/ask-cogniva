@@ -10,6 +10,7 @@ export class RequestError extends Error {
 
 export interface Passage {
   id: string;
+  documentId?: string;
   name: string;
   page: number;
   text: string;
@@ -92,6 +93,18 @@ export function createStore(db: DatabaseSync) {
       db.exec("ROLLBACK");
       throw error;
     }
+  }
+  function pageText(org: string, documentId: string, page: number) {
+    const chunks = all<{ text: string }>(
+      "SELECT text FROM chunks WHERE org_id = ? AND document_id = ? AND page = ? ORDER BY id", org, documentId, page,
+    );
+    let text = "";
+    for (const chunk of chunks) {
+      let overlap = Math.min(text.length, chunk.text.length, 200);
+      while (overlap > 0 && !text.endsWith(chunk.text.slice(0, overlap))) overlap--;
+      text += (text && !overlap ? "\n" : "") + chunk.text.slice(overlap);
+    }
+    return text;
   }
   function document(org: string, id: string) {
     return one<DocumentInfo>(`SELECT ${documentColumns} FROM documents WHERE org_id = ? AND id = ?`, org, id);
@@ -180,26 +193,42 @@ export function createStore(db: DatabaseSync) {
         .filter(term => term.length > 2 && !stop.has(term)))].slice(0, 24);
       if (!terms.length) return [];
       const quoted = terms.map(term => `"${term}"`);
-      // Measure overlap across the corpus so a question can still retrieve several PDFs.
-      if (terms.length >= 3) {
-        const coverage = one<{ total: number }>(`
-          SELECT COUNT(*) AS total FROM json_each(?) term WHERE EXISTS (
-            SELECT 1 FROM chunk_search
-            JOIN chunks c ON c.id = chunk_search.rowid
-            JOIN documents d ON d.org_id = c.org_id AND d.id = c.document_id
-            WHERE chunk_search MATCH term.value AND c.org_id = ? AND d.status = 'ready'
-          )
-        `, JSON.stringify(quoted), org)!;
-        if (coverage.total < 2) return [];
-      }
       const match = quoted.join(" OR ");
-      return all<Omit<Passage, "id">>(`
-        SELECT d.name, c.page, c.text FROM chunk_search
+      const hits = all<{ name: string; document_id: string; page: number }>(`
+        SELECT d.name, c.document_id, c.page FROM chunk_search
         JOIN chunks c ON c.id = chunk_search.rowid
         JOIN documents d ON d.org_id = c.org_id AND d.id = c.document_id
         WHERE chunk_search MATCH ? AND c.org_id = ? AND d.status = 'ready'
-        ORDER BY bm25(chunk_search), c.id LIMIT 10
-      `, match, org).map((passage, i) => ({ ...passage, id: `E${i + 1}` }));
+        ORDER BY bm25(chunk_search), c.id LIMIT 30
+      `, match, org);
+      const pages = new Map<string, typeof hits[number]>();
+      for (const hit of hits) pages.set(`${hit.document_id}:${hit.page}`, pages.get(`${hit.document_id}:${hit.page}`) ?? hit);
+      return [...pages.values()].slice(0, 6).map((page, index) => {
+        const text = pageText(org, page.document_id, page.page);
+        return { id: `E${index + 1}`, documentId: page.document_id, name: page.name, page: page.page, text };
+      });
+    },
+    policyContext(org: string, selected: Passage[]): Passage[] {
+      const documents = all<{id: string; name: string; pages: number}>(
+        "SELECT id, name, pages FROM documents WHERE org_id = ? AND status = 'ready'", org,
+      );
+      const ids = new Set(selected.map(passage => passage.documentId));
+      const context: Passage[] = [];
+      // Walk exact document-title cross-references, always inside the resolved organization.
+      for (let round = 0; round < documents.length; round++) {
+        const pending = documents.filter(doc => ids.has(doc.id) && !context.some(page => page.documentId === doc.id));
+        if (!pending.length) break;
+        for (const doc of pending) {
+          for (let page = 1; page <= doc.pages; page++) {
+            const text = pageText(org, doc.id, page);
+            context.push({id: `E${context.length + 1}`, documentId: doc.id, name: doc.name, page, text});
+            for (const linked of documents) {
+              if (text.toLowerCase().includes(linked.name.replace(/\.pdf$/i, "").toLowerCase())) ids.add(linked.id);
+            }
+          }
+        }
+      }
+      return context;
     },
     count(org: string, event: keyof Usage) {
       db.prepare("INSERT OR IGNORE INTO usage (org_id) VALUES (?)").run(org);

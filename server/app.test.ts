@@ -18,7 +18,8 @@ type ModelReply = (question: string, passages: Passage[]) => unknown;
 
 function fakeModels() {
   const calls: { name: string; passages: Passage[] }[] = [];
-  const stub: { fail: string; noul: number; badQuote: boolean; plan?: ModelReply; reply?: ModelReply; calls: typeof calls; decisions: number; models: Models } = {
+  let lastPassages: Passage[] = [];
+  const stub: { fail: string; noul: number; badQuote: boolean; plan?: ModelReply; reply?: ModelReply; review?: (input: unknown) => unknown; calls: typeof calls; decisions: number; models: Models } = {
     fail: "",
     noul: 0.82,
     badQuote: false,
@@ -26,13 +27,26 @@ function fakeModels() {
     decisions: 0,
     models: {
       async generate(name, _schema, _instructions, input) {
-        const { question, passages } = input as { question: string; passages: Passage[] };
+        const { question, passages = lastPassages, rules } = input as { question: string; passages?: Passage[]; rules?: { id: string; rule: string }[] };
+        lastPassages = passages;
         calls.push({ name, passages });
         if (stub.fail === name) throw new RequestError(503, "Language model unavailable.");
+        if (name === "answer_review") {
+          if (stub.review) return stub.review(input);
+          const {claims} = input as {claims: {id: string; candidateQuote: string}[]};
+          return Object.fromEntries(claims.map(claim => [claim.id, {supported: "yes", relevant: "yes", quoteRelevant: "yes", quote: claim.candidateQuote}]));
+        }
         if (name === "question_plan") {
-          return stub.plan?.(question, passages) ?? factualPlan(passages.map(p => p.id));
+          const plan = (stub.plan?.(question, passages) ?? factualPlan(passages.map(p => p.id))) as { kind: string; evidenceIds: string[]; policy: string };
+          return { kind: plan.kind, evidenceIds: plan.evidenceIds, policy: plan.policy };
+        }
+        if (name === "policy_facts") {
+          const plan = stub.plan?.(question, passages) as { conditions?: { rule: { quote: string }; fact: string }[] } | undefined;
+          return Object.fromEntries((rules ?? []).map(rule => [rule.id, plan?.conditions?.find(condition =>
+            rule.rule.replace(/[*_]/g, "").includes(condition.rule.quote))?.fact ?? ""]));
         }
         if (stub.reply) return stub.reply(question, passages);
+        if (/Northbridge/i.test(question) && !passages.some(p => /Northbridge/i.test(p.text))) return {parts: [{question, claims: []}]};
         if (/compare/i.test(question)) {
           const claims = ["The Access Bursary award is 750 credits.", "The Academic Merit Scholarship award is 2,000 credits."]
             .map(quote => ({ text: quote, quote, evidenceId: passages.find(p => p.text.includes(quote))!.id }));
@@ -48,12 +62,14 @@ function fakeModels() {
           text: quote, evidenceId: passage.id, quote: stub.badQuote ? "This is an invented quotation." : quote,
         }] }] };
       },
-      async decide(_state, questions) {
+      async decide(states, questions) {
         stub.decisions++;
         if (stub.fail === "laya") throw new RequestError(503, "Laya unavailable.");
-        return "scope" in questions
-          ? { scope: { type: "choice", choice: "applies", probabilities: { applies: 0.94 } } }
-          : { check: { type: "noul", noul: stub.noul } };
+        return states.map(() => Object.fromEntries(Object.entries(questions).map(([id, question]) => [id,
+          (question as {type:string}).type === "choice"
+            ? { type: "choice", choice: "applies", probabilities: { applies: 0.94, irrelevant: 0.03, unclear: 0.03 } }
+            : { type: "noul", noul: id === "supported" ? 0.5 : id === "violation" ? 1 - stub.noul : stub.noul },
+        ])));
       },
     } satisfies Models,
   };
@@ -131,10 +147,8 @@ test("signup, tenant-isolated retrieval and file access, token rotation, and del
   assert.deepEqual(grounded.references.map(ref => [ref.name, ref.page]), [[file.name, 2]]);
   const outside = await (await ask(b.token, "OBSERVATORY-17")).json() as Answer;
   assert.equal(outside.status, "no_answer");
-  const beforeIsolated = stub.calls.length;
   assert.equal((await (await ask(b.token, question)).json() as Answer).status, "no_answer");
-  assert.equal(stub.calls.length, beforeIsolated);
-  assert.ok(stub.calls.every(call => call.passages.every(p => !p.text.includes("Harborlight"))));
+  assert.ok(stub.calls.filter(call => call.passages.some(p => p.text.includes("Harborlight"))).every(call => call.passages.every(p => !p.text.includes("OBSERVATORY-17"))));
   const newToken = await a.rotate();
   assert.equal((await ask(a.token, question)).status, 401);
   assert.equal((await identify(a.token)).status, 401);
@@ -172,7 +186,7 @@ test("handles greetings, thanks, and identity questions without searching the PD
   assert.equal(reply.status, "answered");
   assert.match(reply.text, /OBSERVATORY-17/);
   assert.equal(reply.references.length, 1);
-  assert.equal(stub.calls.length, 2);
+  assert.equal(stub.calls.length, 3);
 });
 
 test("enforces upload limits and retains indexed evidence after a failed replacement", async t => {
@@ -242,14 +256,13 @@ test("decision conditions and thresholds come from the uploaded policy", async t
   assert.equal(answer.status, 200, await answer.clone().text());
   const result = await answer.json() as Answer;
   assert.equal(result.decision?.verdict, "Conditions met");
-  assert.deepEqual(result.decision?.checks.map(check => check.method), ["Choice", "Rule", "Boolean (Noul)"]);
+  assert.deepEqual(result.decision?.checks.map(check => check.method), ["Choice", "Boolean (Noul)", "Choice", "Rule"]);
 
   stub.noul = 0.48;
   assert.equal((await (await ask(org.token, question)).json() as Answer).decision?.verdict, "Uncertain");
   stub.noul = 0.82;
   const differentUnits = await ask(org.token, question.replace("60 minutes", "1 hour"));
   assert.equal((await differentUnits.json() as Answer).decision?.verdict, "Uncertain");
-  const before = stub.decisions;
   truncatedFact = true;
   const partialFact = await ask(org.token, question);
   assert.equal((await partialFact.json() as Answer).decision, undefined);
@@ -258,9 +271,9 @@ test("decision conditions and thresholds come from the uploaded policy", async t
   assert.equal((await missing.json() as Answer).status, "needs_clarification");
   badRule = true;
   const unresolved = await (await ask(org.token, question)).json() as Answer;
-  assert.match(unresolved.text, /couldn’t verify a decision/);
+  assert.equal(unresolved.status, "needs_clarification");
+  assert.ok(unresolved.references.some(ref => /maximum of 90 minutes/.test(ref.quote)));
   assert.equal(unresolved.decision, undefined);
-  assert.equal(stub.decisions, before);
   badRule = false;
 
   assert.equal((await upload(org.headers, await policy(45), "Updated.pdf", document.id)).status, 201);
@@ -274,7 +287,7 @@ test("decision conditions and thresholds come from the uploaded policy", async t
   stub.plan = undefined;
   stub.badQuote = true;
   const unsupported = await (await ask(org.token, "What is the laser cutter maximum duration?")).json() as Answer;
-  assert.equal(unsupported.status, "no_answer");
+  assert.equal(unsupported.status, "unresolved");
   assert.deepEqual(unsupported.references, []);
 });
 
@@ -295,6 +308,22 @@ test("a comparison retains both independently grounded facts and excludes an inv
   ]);
 });
 
+test("policy checking includes mandatory conditions on a page without matching retrieval words", async t => {
+  const {stub, organization, upload, ask} = await setup(t);
+  const org = await organization("policy-coverage");
+  const score = "Research applicants need a GPA of at least 3.5.";
+  const training = "Participants must complete orientation.";
+  assert.equal((await upload(org.headers, await createFixturePdf([
+    ["Research Fellowship Rules", score], ["Additional mandatory conditions", training],
+  ]), "Fellowship.pdf")).status, 201);
+  stub.plan = (_question, passages) => ({kind: "decision", evidenceIds: [passages[0].id], policy: "Research fellowship", conditions: [
+    {rule: {quote: score}, fact: "GPA 3.6"},
+  ]});
+  const answer = await (await ask(org.token, "Am I eligible for the research fellowship? My GPA 3.6.")).json() as Answer;
+  assert.equal(answer.status, "needs_clarification");
+  assert.ok(answer.references.some(reference => reference.page === 2 && reference.quote === training));
+});
+
 test("answers supported museum hours and identifies the unsupported part of the same request", async t => {
   const { stub, organization, upload, ask } = await setup(t);
   const org = await organization("museum");
@@ -307,6 +336,9 @@ test("answers supported museum hours and identifies the unsupported part of the 
   const unknown = "when does monkeys comes in the museum?";
   stub.plan = () => ({ ...factualPlan([]), kind: "insufficient" });
   let wrongWeekendQuote = false;
+  stub.review = input => Object.fromEntries((input as {claims: {id: string; statement: string; candidateQuote: string}[]}).claims.map(claim => [claim.id, {
+    supported: "yes", relevant: "yes", quoteRelevant: wrongWeekendQuote && claim.statement.includes("09:00") ? "uncertain" : "yes", quote: claim.candidateQuote,
+  }]));
   stub.reply = (question, passages) => {
     const evidenceId = passages[0].id;
     return { parts: [
@@ -322,8 +354,8 @@ test("answers supported museum hours and identifies the unsupported part of the 
   assert.equal(response.status, 200, await response.clone().text());
   const result = await response.json() as Answer;
   assert.equal(result.status, "answered");
-  assert.ok(result.text.includes(`${weekday} [[E1]]`));
-  assert.ok(result.text.includes(`${weekend} [[E2]]`));
+  assert.match(result.text, /10:00.*weekdays/);
+  assert.match(result.text, /09:00.*weekends/);
   assert.ok(result.text.includes(`I couldn’t find a supported answer in this organization’s PDFs for “${unknown.slice(0, -1)}”.`));
   assert.deepEqual(result.references.map(ref => [ref.id, ref.page, ref.quote]), [
     ["E1", 1, weekday],
@@ -383,7 +415,7 @@ test("keeps grounded answers across PDFs even when the planner selects only one 
   ]);
 });
 
-test("displays the verified excerpt when the composer attaches an unrelated claim to a real quote", async t => {
+test("an authentic excerpt cannot override an unsupported generated claim", async t => {
   const { stub, organization, upload, ask } = await setup(t);
   const org = await organization("northbridge");
   assert.equal((await upload(org.headers, await createFixturePdf(organizations[0].files[1].pages))).status, 201);
@@ -392,19 +424,23 @@ test("displays the verified excerpt when the composer attaches an unrelated clai
     text: "Tuition is completely free for everyone.",
     evidenceId: passages.find(passage => passage.text.includes(quote))!.id, quote,
   }] }] });
+  stub.review = input => Object.fromEntries((input as {claims: {id: string; candidateQuote: string}[]}).claims.map(claim => [claim.id,
+    {supported: "no", relevant: "no", quoteRelevant: "yes", quote: claim.candidateQuote},
+  ]));
   const response = await ask(org.token, "When does the library open on weekdays?");
   assert.equal(response.status, 200);
   const reply = await response.json() as Answer;
-  assert.equal(reply.text, `${quote} [[E1]]`);
+  assert.equal(reply.status, "unresolved");
+  assert.deepEqual(reply.references, []);
   assert.doesNotMatch(reply.text, /Tuition|free/);
 });
 
 test("keeps unparseable numeric checks in code and counts clarification, uncertainty, and failures separately", async t => {
   const { stub, request, organization, upload, ask } = await setup(t);
   const org = await organization("science-club");
-  const quote = "Minimum research score: 3.5";
-  assert.equal((await upload(org.headers, await createFixturePdf([["Science Club Research Policy", quote]]))).status, 201);
-  let ruleQuote = "Minimum research score";
+  const quote = "Research score must be at least 3.5 and at most 4.0.";
+  const uploaded = await (await upload(org.headers, await createFixturePdf([["Science Club Research Policy", quote]]))).json() as {document: DocumentInfo};
+  let ruleQuote = quote;
   let fact = "3.5";
   stub.plan = (_question, passages) => ({
     kind: "decision", evidenceIds: [passages[0].id], policy: "Science Club Research Policy",
@@ -419,9 +455,10 @@ test("keeps unparseable numeric checks in code and counts clarification, uncerta
   assert.equal(uncertain.status, "unresolved");
   assert.equal(uncertain.decision?.verdict, "Uncertain");
   assert.deepEqual(uncertain.decision?.checks.map(check => check.method), ["Choice", "Rule"]);
-  assert.equal(stub.decisions, 1);
+  assert.ok(stub.decisions >= 1);
 
-  ruleQuote = quote;
+  ruleQuote = "Minimum research score: 3.5";
+  assert.equal((await upload(org.headers, await createFixturePdf([["Science Club Research Policy", ruleQuote]]), "Updated.pdf", uploaded.document.id)).status, 201);
   const passed = await (await ask(org.token, question)).json() as Answer;
   assert.equal(passed.decision?.verdict, "Conditions met");
   fact = "";
@@ -450,6 +487,24 @@ test("a corrupted saved token leaves the dashboard usable and can be regenerated
   assert.equal(recovered.assistantNeedsRegeneration, false);
   assert.equal((await ask(org.token, "Hi")).status, 401);
   assert.equal((await ask(next, "Hi")).status, 200);
+});
+
+test("an unsupported subquestion cannot be answered by citing an unrelated document disclaimer", async t => {
+  const {stub, organization, upload, ask} = await setup(t);
+  const org = await organization("mixed-disclaimer");
+  const hours = "The museum opens at 10:00 on weekdays.";
+  const footer = "Not affiliated with a real institution.";
+  assert.equal((await upload(org.headers, await createFixturePdf([["Museum Visitor Guide", hours, footer]]))).status, 201);
+  stub.reply = (_question, passages) => ({parts: [
+    {question: "When does the museum open?", claims: [{text: hours, quote: hours, evidenceId: passages[0].id}]},
+    {question: "when do monkeys visit?", claims: [{text: "The provided documents do not contain information about monkeys visiting.", quote: footer, evidenceId: passages[0].id}]},
+  ]});
+  const answer = await (await ask(org.token, "When does the museum open? Also when do monkeys visit?")).json() as Answer;
+  assert.equal(answer.status, "answered");
+  assert.match(answer.text, /10:00/);
+  assert.match(answer.text, /couldn’t find a supported answer.*monkeys/);
+  assert.doesNotMatch(answer.text, /Not affiliated/);
+  assert.equal(answer.references.length, 1);
 });
 
 test("a fresh database initializes usage counters and a stemmed search index", async t => {

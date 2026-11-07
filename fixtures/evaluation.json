@@ -1,0 +1,153 @@
+[
+  {
+    "id": "n-hours",
+    "org": "Northbridge University",
+    "question": "What are your library opening hours on weekdays?",
+    "contains": [
+      "08:00",
+      "18:00"
+    ],
+    "status": "answered"
+  },
+  {
+    "id": "n-apply",
+    "org": "Northbridge University",
+    "question": "How do I submit an Academic Merit Scholarship application, and what documents do I attach?",
+    "contains": [
+      "transcript",
+      "statement"
+    ],
+    "status": "answered",
+    "containsAny": [
+      [
+        "identity",
+        "identification",
+        "student id"
+      ]
+    ]
+  },
+  {
+    "id": "n-missing",
+    "org": "Northbridge University",
+    "question": "Am I eligible to apply for the Academic Merit Scholarship? I am a continuing Northbridge undergraduate taking 12 credits, making satisfactory academic progress, with no active disciplinary sanction and no other tuition funding. My outstanding tuition is $10,000.",
+    "status": "needs_clarification"
+  },
+  {
+    "id": "n-pass",
+    "org": "Northbridge University",
+    "question": "Am I eligible to apply for the Academic Merit Scholarship? I am a continuing Northbridge undergraduate taking 12 credits, with cumulative GPA 3.60 out of 4.00, satisfactory academic progress, no active disciplinary sanction, and no other tuition funding. My outstanding tuition is $10,000.",
+    "verdict": "Conditions met"
+  },
+  {
+    "id": "n-fail",
+    "org": "Northbridge University",
+    "question": "Am I eligible to apply for the Academic Merit Scholarship? I am a continuing Northbridge undergraduate taking 12 credits, with cumulative GPA 3.20 out of 4.00, satisfactory academic progress, no active disciplinary sanction, and no other tuition funding. My outstanding tuition is $10,000.",
+    "verdict": "Conditions not met"
+  },
+  {
+    "id": "h-book",
+    "org": "Harborlight Makerspace",
+    "question": "How do I reserve the laser cutter?",
+    "contains": [
+      "Member Hub",
+      "Equipment"
+    ],
+    "status": "answered"
+  },
+  {
+    "id": "h-compare",
+    "org": "Harborlight Makerspace",
+    "question": "Compare the maximum laser cutter and 3D printer reservation durations.",
+    "contains": [
+      "90",
+      "180"
+    ],
+    "status": "answered"
+  },
+  {
+    "id": "h-guests",
+    "org": "Harborlight Makerspace",
+    "question": "Can guests operate the laser cutter independently?",
+    "contains": [
+      "guest"
+    ],
+    "status": "answered",
+    "containsAny": [
+      [
+        "cannot",
+        "must not",
+        "may not",
+        "never operate",
+        "not permitted"
+      ]
+    ]
+  },
+  {
+    "id": "h-limit",
+    "org": "Harborlight Makerspace",
+    "question": "Can I book a single 120-minute laser cutter reservation? I am an active adult member with current general safety orientation, recorded laser cutter induction, no other upcoming laser cutter booking, and closed-toe shoes.",
+    "verdict": "Conditions not met"
+  },
+  {
+    "id": "h-code",
+    "org": "Harborlight Makerspace",
+    "question": "What is Harborlight Makerspace's visitor desk reference code?",
+    "status": "answered",
+    "contains": ["HARBOR-42"]
+  },
+  {
+    "id": "h-unknown",
+    "org": "Harborlight Makerspace",
+    "question": "What is the annual membership fee?",
+    "status": "no_answer"
+  },
+  {
+    "id": "m-hours",
+    "org": "Cedar Grove Museum",
+    "question": "What are your opening hours on weekends?",
+    "contains": [
+      "09:00",
+      "18:00"
+    ],
+    "status": "answered"
+  },
+  {
+    "id": "m-multiple",
+    "org": "Cedar Grove Museum",
+    "question": "Can school groups book a visit, how much is it per student, and when does the museum close on weekends?",
+    "contains": [
+      "6",
+      "18:00",
+      "portal"
+    ],
+    "status": "answered"
+  },
+  {
+    "id": "m-mixed",
+    "org": "Cedar Grove Museum",
+    "question": "When does the museum open on weekdays? Also when do monkeys visit the museum?",
+    "contains": [
+      "10:00",
+      "monkey"
+    ],
+    "status": "answered"
+  },
+  {
+    "id": "m-unknown",
+    "org": "Cedar Grove Museum",
+    "question": "When do monkeys visit the museum?",
+    "status": "no_answer"
+  },
+  {
+    "id": "m-isolation",
+    "org": "Cedar Grove Museum",
+    "question": "What is Northbridge University's library desk reference code?",
+    "status": "no_answer"
+  },
+  {
+    "id": "m-limit",
+    "org": "Cedar Grove Museum",
+    "question": "Can our school book one guided tour for 32 participants total, including our teachers? We are booking 15 business days ahead and have enough responsible adults for supervision.",
+    "verdict": "Conditions not met"
+  }
+]

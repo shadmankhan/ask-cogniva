@@ -114,7 +114,7 @@ export async function createApp(settings: { db: DatabaseSync; origin: string; se
     if (acknowledgment) return c.json<Answer>({ status: "acknowledged", text: acknowledgment, references: [] });
     store.count(org.id, "asked");
     try {
-      const result = await answerQuestion(models, question, store.search(org.id, question));
+      const result = await answerQuestion(models, question, store.search(org.id, question), selected => store.policyContext(org.id, selected));
       if (result.status !== "acknowledged") store.count(org.id, result.status);
       return c.json(result);
     } catch (error) {

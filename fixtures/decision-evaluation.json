@@ -1,0 +1,35 @@
+[
+  {
+    "id": "s-pass",
+    "org": "Northbridge University",
+    "question": "Am I eligible for the Academic Merit Scholarship? I am in year 2, have a GPA of 3.7, and have no existing scholarship.",
+    "verdict": "Conditions met"
+  },
+  {
+    "id": "s-fail",
+    "org": "Northbridge University",
+    "question": "Am I eligible for the Academic Merit Scholarship? I am in year 3, my GPA is 3.8, and I already receive the Varsity Basketball Grant, awarded for playing on the varsity basketball team.",
+    "verdict": "Conditions not met"
+  },
+  {
+    "id": "s-missing",
+    "org": "Northbridge University",
+    "question": "Am I eligible for the Academic Merit Scholarship? I am in year 2 and have no scholarship.",
+    "status": "needs_clarification",
+    "contains": [
+      "GPA"
+    ]
+  },
+  {
+    "id": "s-explicit-pass",
+    "org": "Northbridge University",
+    "question": "Am I eligible for the Academic Merit Scholarship? I am in academic year 2, my GPA is 3.7, and I do not receive any concurrent athletic award.",
+    "verdict": "Conditions met"
+  },
+  {
+    "id": "s-explicit-fail",
+    "org": "Northbridge University",
+    "question": "Am I eligible for the Academic Merit Scholarship? I am in academic year 3, my GPA is 3.8, and I receive a concurrent athletic award for varsity basketball.",
+    "verdict": "Conditions not met"
+  }
+]

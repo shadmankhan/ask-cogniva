@@ -5,7 +5,7 @@ import { RequestError } from "./store.js";
 
 export interface Models {
   generate(name: string, schema: TSchema, instructions: string, input: unknown): Promise<unknown>;
-  decide(state: string, questions: Record<string, unknown>): Promise<unknown>;
+  decide(states: string[], questions: Record<string, unknown>): Promise<unknown[]>;
 }
 
 type GeneratorSettings = { apiKey?: string; model: string };
@@ -14,6 +14,15 @@ type ModelSettings = (
   (GeneratorSettings & { provider: "openrouter" | "gemini" }) |
   (OllamaSettings & { provider: "ollama" })
 ) & { layaUrl: string };
+
+function serial<Args extends unknown[], Result>(work: (...args: Args) => Promise<Result>) {
+  let tail: Promise<unknown> = Promise.resolve();
+  return (...args: Args): Promise<Result> => {
+    const result = tail.then(() => work(...args));
+    tail = result.catch(() => undefined);
+    return result;
+  };
+}
 
 function openRouterGenerator(settings: GeneratorSettings): Models["generate"] {
   const client = settings.apiKey ? new OpenRouter({ apiKey: settings.apiKey, timeoutMs: 40_000 }) : undefined;
@@ -25,8 +34,8 @@ function openRouterGenerator(settings: GeneratorSettings): Models["generate"] {
         chatRequest: {
           model: settings.model,
           stream: false,
-          maxTokens: name === "question_plan" ? 1_600 : 900,
-          reasoning: { effort: name === "question_plan" ? "low" : "none" },
+          maxTokens: name === "question_plan" ? 512 : name === "policy_facts" ? 4_096 : 2_048,
+          reasoning: { effort: "none" },
           provider: { requireParameters: true, allowFallbacks: false },
           responseFormat: { type: "json_schema", jsonSchema: { name, strict: true, schema } },
           messages: [
@@ -78,10 +87,16 @@ function geminiGenerator(settings: GeneratorSettings): Models["generate"] {
         throw new RequestError(503, "Gemini rejected the API credential. Check GOOGLE_GEMINI_API_KEY.");
       }
       const candidate = data.candidates?.[0];
-      if (!response.ok || candidate?.finishReason !== "STOP") throw new Error("Incomplete Gemini response");
+      if (candidate?.finishReason === "MAX_TOKENS") throw new RequestError(503, "Gemini reached its response token limit. Try a narrower question or another configured model.");
+      if (!response.ok) throw new RequestError(503, "Gemini could not accept the structured request. Check the configured model and try again.");
+      if (candidate?.finishReason !== "STOP") throw new RequestError(503, "Gemini ended its response without a complete answer. Try another configured model.");
       const text = candidate.content?.parts?.filter(part => !part.thought).map(part => part.text ?? "").join("");
-      if (!text) throw new Error("Missing Gemini response text");
-      return JSON.parse(text);
+      if (!text) throw new RequestError(503, "Gemini returned an empty answer. Try again or select another provider.");
+      try {
+        return JSON.parse(text);
+      } catch {
+        throw new RequestError(503, "Gemini returned invalid structured output. Try again or select another provider.");
+      }
     } catch (error) {
       if (error instanceof RequestError) throw error;
       if (error instanceof Error && error.name === "TimeoutError") {
@@ -94,13 +109,14 @@ function geminiGenerator(settings: GeneratorSettings): Models["generate"] {
 
 function ollamaGenerator(settings: OllamaSettings): Models["generate"] {
   const endpoint = new URL("/api/chat", settings.ollamaUrl);
-  return async (_name, schema, instructions, input) => {
+  return async (name, schema, instructions, input) => {
     try {
       const response = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: settings.model,
+          keep_alive: 0,
           stream: false,
           think: false,
           format: schema,
@@ -108,7 +124,7 @@ function ollamaGenerator(settings: OllamaSettings): Models["generate"] {
             { role: "system", content: instructions },
             { role: "user", content: JSON.stringify(input) },
           ],
-          options: { temperature: 0, num_ctx: 6_144, num_predict: 1_600 },
+          options: { temperature: 0, num_ctx: 6_144, num_predict: name === "question_plan" || name === "numeric_facts" ? 256 : name === "policy_facts" || name === "answer_review" ? 2_048 : 1_200 },
         }),
         redirect: "error",
         signal: AbortSignal.timeout(90_000),
@@ -135,23 +151,30 @@ export function createModels(settings: ModelSettings): Models {
   const generate = settings.provider === "ollama" ? ollamaGenerator(settings)
     : settings.provider === "gemini" ? geminiGenerator(settings) : openRouterGenerator(settings);
   return {
-    generate,
-    async decide(state, questions) {
+    generate: serial(generate),
+    decide: serial(async (states, questions) => {
+      const answers: unknown[] = [];
       try {
-        const response = await fetch(new URL("/v1/systemone", settings.layaUrl), {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ model: "english", state, questions }),
-          signal: AbortSignal.timeout(20_000),
-        });
-        if (!response.ok) throw new Error("Decision server error");
-        const data = await response.json();
-        if (data.usage?.truncated) throw new Error("Decision context was truncated");
-        return data.answers;
-      } catch {
-        throw new RequestError(503, "The local Laya decision model is unavailable. Start it and try again.");
+        for (let index = 0; index < states.length; index += 4) {
+          const batch = states.slice(index, index + 4);
+          const response = await fetch(new URL("/v1/systemone/batch", settings.layaUrl), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ model: "english", states: batch, batch_size: 4, max_len: 768, questions }),
+            signal: AbortSignal.timeout(60_000),
+          });
+          if (!response.ok) throw new Error("Decision server error");
+          const data = await response.json() as { results?: { answers?: unknown; usage?: { truncated?: boolean } }[] };
+          if (!Array.isArray(data.results) || data.results.length !== batch.length) throw new Error("Incomplete decision batch");
+          if (data.results.some(result => result.usage?.truncated)) throw new RequestError(503, "The policy check exceeded the decision model’s context. Shorten the question and try again.");
+          answers.push(...data.results.map(result => result.answers));
+        }
+        return answers;
+      } catch (error) {
+        if (error instanceof RequestError) throw error;
+        throw new RequestError(503, "The local policy checks could not finish. Check that Laya has completed its startup warm-up and try again.");
       }
-    },
+    }),
   };
 }
 

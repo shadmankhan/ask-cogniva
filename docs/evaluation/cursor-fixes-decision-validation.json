@@ -1,0 +1,639 @@
+{
+  "startedAt": "2026-11-07T18:08:42.736Z",
+  "implementation": "04dc7f8668aa69969687c12e03daa7a0a144a39f615b2c078de732859424e668",
+  "provider": "gemini",
+  "model": "gemini-3.1-flash-lite",
+  "cloudCalls": 8,
+  "cases": [
+    {
+      "id": "s-missing",
+      "org": "Northbridge University",
+      "question": "Am I eligible for the Academic Merit Scholarship? I am in year 2 and have no scholarship.",
+      "status": "needs_clarification",
+      "contains": [
+        "GPA"
+      ],
+      "http": 200,
+      "answer": {
+        "status": "needs_clarification",
+        "text": "Please include your facts for these required policy checks:\n\nMinimum GPA: 3.5 [[E1]]",
+        "references": [
+          {
+            "id": "E1",
+            "name": "Merit Scholarship Rules.pdf",
+            "page": 1,
+            "quote": "Minimum GPA: 3.5"
+          }
+        ]
+      },
+      "ms": 15797,
+      "pass": true,
+      "calls": [
+        {
+          "stage": "question_plan",
+          "ms": 1793,
+          "result": {
+            "kind": "decision",
+            "evidenceIds": [
+              "E1"
+            ],
+            "policy": "Academic Merit Scholarship Eligibility"
+          }
+        },
+        {
+          "stage": "policy_facts",
+          "ms": 12275,
+          "result": {
+            "R1": "",
+            "R2": "year 2",
+            "R3": "no scholarship"
+          }
+        },
+        {
+          "stage": "laya",
+          "ms": 1226,
+          "result": [
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.7809,
+                  "irrelevant": 0.2191
+                },
+                "confidence": 0.2415,
+                "answer_confidence": 0.7809,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.5618
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.6162,
+                "confidence": 0.6162,
+                "answer_confidence": 0.6162,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.7343,
+                  "irrelevant": 0.2657
+                },
+                "confidence": 0.1648,
+                "answer_confidence": 0.7343,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.4686
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.6264,
+                "confidence": 0.6264,
+                "answer_confidence": 0.6264,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.6607,
+                  "irrelevant": 0.3393
+                },
+                "confidence": 0.0758,
+                "answer_confidence": 0.6607,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.3214
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.3204,
+                "confidence": 0.6796,
+                "answer_confidence": 0.6796,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "stage": "laya",
+          "ms": 477,
+          "result": [
+            {
+              "addresses": {
+                "type": "noul",
+                "noul": 0.8295,
+                "confidence": 0.8295,
+                "answer_confidence": 0.8295,
+                "action": {
+                  "act_probability": 1
+                }
+              },
+              "compliance": {
+                "type": "noul",
+                "noul": 0.8674,
+                "confidence": 0.8674,
+                "answer_confidence": 0.8674,
+                "action": {
+                  "act_probability": 1
+                }
+              },
+              "violation": {
+                "type": "noul",
+                "noul": 0.1957,
+                "confidence": 0.8043,
+                "answer_confidence": 0.8043,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s-explicit-pass",
+      "org": "Northbridge University",
+      "question": "Am I eligible for the Academic Merit Scholarship? I am in academic year 2, my GPA is 3.7, and I do not receive any concurrent athletic award.",
+      "verdict": "Conditions met",
+      "http": 200,
+      "answer": {
+        "status": "unresolved",
+        "text": "I couldn’t verify every policy condition for your situation. Checks needing review: Athletic awards are prohibited as concurrent aid..\n\nAthletic awards are prohibited as concurrent aid. [[E1]]\n\nEligible academic years: 2, 3, 4 [[E2]]\n\nAthletic awards are prohibited as concurrent aid. [[E1]]\n\nI couldn’t verify every detail for “Am I eligible for the Academic Merit Scholarship? I am in academic year 2, my GPA is 3.7, and I do not receive any concurrent athletic award”.",
+        "references": [
+          {
+            "id": "E1",
+            "name": "Merit Scholarship Rules.pdf",
+            "page": 1,
+            "quote": "Athletic awards are prohibited as concurrent aid."
+          },
+          {
+            "id": "E2",
+            "name": "Merit Scholarship Rules.pdf",
+            "page": 1,
+            "quote": "Eligible academic years: 2, 3, 4"
+          }
+        ],
+        "decision": {
+          "verdict": "Uncertain",
+          "checks": [
+            {
+              "label": "Minimum GPA — applicability",
+              "method": "Choice",
+              "result": "applies",
+              "score": 0.8509
+            },
+            {
+              "label": "Minimum GPA",
+              "method": "Rule",
+              "result": "Pass"
+            },
+            {
+              "label": "Eligible academic years — applicability",
+              "method": "Choice",
+              "result": "applies",
+              "score": 0.7387
+            },
+            {
+              "label": "Eligible academic years",
+              "method": "Rule",
+              "result": "Pass"
+            },
+            {
+              "label": "Athletic awards are prohibited as concurrent aid. — applicability",
+              "method": "Choice",
+              "result": "applies",
+              "score": 0.6822
+            },
+            {
+              "label": "Athletic awards are prohibited as concurrent aid.",
+              "method": "Boolean (Noul)",
+              "result": "Uncertain",
+              "score": 0.8968
+            }
+          ]
+        }
+      },
+      "ms": 38291,
+      "pass": false,
+      "calls": [
+        {
+          "stage": "question_plan",
+          "ms": 11743,
+          "result": {
+            "kind": "decision",
+            "evidenceIds": [
+              "E1"
+            ],
+            "policy": "Academic Merit Scholarship Eligibility"
+          }
+        },
+        {
+          "stage": "policy_facts",
+          "ms": 12711,
+          "result": {
+            "R1": "3.7",
+            "R2": "academic year 2",
+            "R3": "do not receive any concurrent athletic award"
+          }
+        },
+        {
+          "stage": "laya",
+          "ms": 992,
+          "result": [
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.8509,
+                  "irrelevant": 0.1491
+                },
+                "confidence": 0.3924,
+                "answer_confidence": 0.8509,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.7018
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.7538,
+                "confidence": 0.7538,
+                "answer_confidence": 0.7538,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.7387,
+                  "irrelevant": 0.2613
+                },
+                "confidence": 0.1712,
+                "answer_confidence": 0.7387,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.4774
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.5961,
+                "confidence": 0.5961,
+                "answer_confidence": 0.5961,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.6822,
+                  "irrelevant": 0.3178
+                },
+                "confidence": 0.098,
+                "answer_confidence": 0.6822,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.3644
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.2413,
+                "confidence": 0.7587,
+                "answer_confidence": 0.7587,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "stage": "laya",
+          "ms": 483,
+          "result": [
+            {
+              "addresses": {
+                "type": "noul",
+                "noul": 0.8996,
+                "confidence": 0.8996,
+                "answer_confidence": 0.8996,
+                "action": {
+                  "act_probability": 1
+                }
+              },
+              "compliance": {
+                "type": "noul",
+                "noul": 0.8968,
+                "confidence": 0.8968,
+                "answer_confidence": 0.8968,
+                "action": {
+                  "act_probability": 1
+                }
+              },
+              "violation": {
+                "type": "noul",
+                "noul": 0.7258,
+                "confidence": 0.7258,
+                "answer_confidence": 0.7258,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "stage": "grounded_answer",
+          "ms": 12345,
+          "result": {
+            "parts": [
+              {
+                "question": "Am I eligible for the Academic Merit Scholarship? I am in academic year 2, my GPA is 3.7, and I do not receive any concurrent athletic award.",
+                "claims": [
+                  {
+                    "text": "Your current academic year of 2 meets the scholarship eligibility requirements.",
+                    "evidenceId": "E1",
+                    "quote": "Eligible academic years: 2, 3, 4"
+                  },
+                  {
+                    "text": "Your GPA of 3.7 meets the minimum requirement of 3.5.",
+                    "evidenceId": "E1",
+                    "quote": "Minimum GPA: 3.5"
+                  },
+                  {
+                    "text": "The policy prohibits concurrent athletic awards, and your status of not receiving one meets this condition.",
+                    "evidenceId": "E1",
+                    "quote": "Athletic awards are prohibited as concurrent aid."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "stage": "laya",
+          "ms": 0,
+          "result": []
+        },
+        {
+          "stage": "laya",
+          "ms": 0,
+          "result": []
+        }
+      ]
+    },
+    {
+      "id": "s-explicit-fail",
+      "org": "Northbridge University",
+      "question": "Am I eligible for the Academic Merit Scholarship? I am in academic year 3, my GPA is 3.8, and I receive a concurrent athletic award for varsity basketball.",
+      "verdict": "Conditions not met",
+      "http": 200,
+      "answer": {
+        "status": "answered",
+        "text": "The facts you provided do not meet all the required policy conditions.\n\nAthletic awards are prohibited as concurrent aid. [[E1]]",
+        "references": [
+          {
+            "id": "E1",
+            "name": "Merit Scholarship Rules.pdf",
+            "page": 1,
+            "quote": "Athletic awards are prohibited as concurrent aid."
+          }
+        ],
+        "decision": {
+          "verdict": "Conditions not met",
+          "checks": [
+            {
+              "label": "Minimum GPA — applicability",
+              "method": "Choice",
+              "result": "applies",
+              "score": 0.8641
+            },
+            {
+              "label": "Minimum GPA",
+              "method": "Rule",
+              "result": "Pass"
+            },
+            {
+              "label": "Eligible academic years — applicability",
+              "method": "Choice",
+              "result": "applies",
+              "score": 0.7018
+            },
+            {
+              "label": "Eligible academic years",
+              "method": "Rule",
+              "result": "Pass"
+            },
+            {
+              "label": "Athletic awards are prohibited as concurrent aid. — applicability",
+              "method": "Choice",
+              "result": "applies",
+              "score": 0.6763
+            },
+            {
+              "label": "Athletic awards are prohibited as concurrent aid. — violation",
+              "method": "Boolean (Noul)",
+              "result": "Fail",
+              "score": 0.7557
+            }
+          ]
+        }
+      },
+      "ms": 38584,
+      "pass": true,
+      "calls": [
+        {
+          "stage": "question_plan",
+          "ms": 12237,
+          "result": {
+            "kind": "decision",
+            "evidenceIds": [
+              "E1"
+            ],
+            "policy": "Academic Merit Scholarship Eligibility"
+          }
+        },
+        {
+          "stage": "policy_facts",
+          "ms": 13186,
+          "result": {
+            "R1": "3.8",
+            "R2": "academic year 3",
+            "R3": "concurrent athletic award for varsity basketball"
+          }
+        },
+        {
+          "stage": "laya",
+          "ms": 1298,
+          "result": [
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.8641,
+                  "irrelevant": 0.1359
+                },
+                "confidence": 0.4267,
+                "answer_confidence": 0.8641,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.7282
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.7657,
+                "confidence": 0.7657,
+                "answer_confidence": 0.7657,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.7018,
+                  "irrelevant": 0.2982
+                },
+                "confidence": 0.121,
+                "answer_confidence": 0.7018,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.4036
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.5999,
+                "confidence": 0.5999,
+                "answer_confidence": 0.5999,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            },
+            {
+              "scope": {
+                "type": "choice",
+                "choice": "applies",
+                "probabilities": {
+                  "applies": 0.6763,
+                  "irrelevant": 0.3237
+                },
+                "confidence": 0.0917,
+                "answer_confidence": 0.6763,
+                "action": {
+                  "act_probability": 1
+                },
+                "x_jev_confidence": 0.3526
+              },
+              "applicability": {
+                "type": "noul",
+                "noul": 0.2462,
+                "confidence": 0.7538,
+                "answer_confidence": 0.7538,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "stage": "laya",
+          "ms": 487,
+          "result": [
+            {
+              "addresses": {
+                "type": "noul",
+                "noul": 0.6947,
+                "confidence": 0.6947,
+                "answer_confidence": 0.6947,
+                "action": {
+                  "act_probability": 1
+                }
+              },
+              "compliance": {
+                "type": "noul",
+                "noul": 0.2687,
+                "confidence": 0.7313,
+                "answer_confidence": 0.7313,
+                "action": {
+                  "act_probability": 1
+                }
+              },
+              "violation": {
+                "type": "noul",
+                "noul": 0.7557,
+                "confidence": 0.7557,
+                "answer_confidence": 0.7557,
+                "action": {
+                  "act_probability": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "stage": "grounded_answer",
+          "ms": 11341,
+          "result": {
+            "parts": [
+              {
+                "question": "Am I eligible for the Academic Merit Scholarship? I am in academic year 3, my GPA is 3.8, and I receive a concurrent athletic award for varsity basketball.",
+                "claims": [
+                  {
+                    "text": "You are not eligible for the Academic Merit Scholarship because your receipt of an athletic award for varsity basketball is prohibited as concurrent aid.",
+                    "evidenceId": "E1",
+                    "quote": "Athletic awards are prohibited as concurrent aid."
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "stage": "laya",
+          "ms": 0,
+          "result": []
+        },
+        {
+          "stage": "laya",
+          "ms": 0,
+          "result": []
+        }
+      ]
+    }
+  ]
+}
