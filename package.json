@@ -12,7 +12,7 @@
     "start": "node --env-file-if-exists=.env --import tsx server/index.ts",
     "build": "npm run typecheck && vite build",
     "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test server/*.test.ts",
+    "test": "node --import tsx --test server/*.test.ts client/src/*.test.tsx",
     "evaluate": "node --env-file-if-exists=.env --import tsx scripts/evaluate.ts",
     "seed": "node --env-file-if-exists=.env --import tsx server/seed.ts",
     "demo": "node scripts/demo.mjs",
@@ -21,13 +21,16 @@
   "dependencies": {
     "@firecrawl/anydoc": "0.1.7",
     "@hono/node-server": "2.1.6",
+    "@json-render/core": "0.22.0",
+    "@json-render/react": "0.22.0",
     "@openrouter/sdk": "1.5.56",
     "better-auth": "1.7.18",
     "hono": "4.13.16",
     "pdf-lib": "1.17.1",
     "react": "19.3.1",
     "react-dom": "19.3.1",
-    "typebox": "1.4.4"
+    "typebox": "1.4.4",
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@types/node": "24.19.2",

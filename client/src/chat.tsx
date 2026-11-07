@@ -1,33 +1,7 @@
-import { Fragment, useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { LIMITS, type Answer, type AssistantInfo } from "../../shared/contracts.js";
 import { api } from "./api.js";
-
-function CitedAnswer({ answer, index }: { answer: Answer; index: number }) {
-  return <>
-    {answer.decision && <strong className="verdict">{answer.decision.verdict}</strong>}
-    {answer.text.split("\n\n").map((paragraph, p) => <p key={p}>
-      {paragraph.split(/(\[\[E\d+\]\])/g).map((part, i) => {
-        const ref = answer.references.find(ref => part === `[[${ref.id}]]`);
-        return ref ? <a key={i} className="citation" href={`#${index}-${ref.id}`} onClick={event => {
-          event.preventDefault();
-          document.getElementById(`${index}-${ref.id}`)?.scrollIntoView({ block: "nearest" });
-        }}>{ref.name} · p. {ref.page}</a> : <Fragment key={i}>{part}</Fragment>;
-      })}
-    </p>)}
-    {answer.references.length > 0 && <div className="sources">
-      {answer.references.map(ref => <blockquote key={ref.id} id={`${index}-${ref.id}`}>
-        <strong>{ref.name} · Page {ref.page}</strong><span>{ref.quote}</span>
-      </blockquote>)}
-    </div>}
-    {answer.decision && <details className="decision">
-      <summary>How Cogniva decided</summary>
-      <ul>{answer.decision.checks.map(check => <li key={check.label}>
-        <strong>{check.label}</strong><span>{check.method} · {check.result}
-          {check.score === undefined ? "" : ` · model output ${check.score.toFixed(2)}`}</span>
-      </li>)}</ul>
-    </details>}
-  </>;
-}
+import { AnswerView } from "./answer.js";
 
 export function Chat() {
   const [token] = useState(() => new URLSearchParams(window.location.hash.slice(1)).get("token"));
@@ -80,7 +54,7 @@ export function Chat() {
       <span className="brand">{assistant?.organizationName ?? "Cogniva"}</span>
       <span className="muted">{assistant ? "Powered by Cogniva" : "Document assistant"}</span>
     </header>
-    <div className="thread" aria-live="polite">
+    <div className="thread">
       {!token && <p className="error">Open a valid assistant link from your organization.</p>}
       {linkError && <p className="error" role="alert">{linkError}</p>}
       {token && !assistant && !linkError && <p className="muted" role="status">Opening assistant…</p>}
@@ -90,11 +64,12 @@ export function Chat() {
           <h1>What would you like to know?</h1>
           <p>Ask about the documents from {assistant.organizationName} and check the cited pages behind each answer.</p>
         </div>}
-        {messages.map((message, i) => <section className="turn" key={i}>
+        {messages.map((message, i) => <section className="turn" key={i}
+          aria-live={i === messages.length - 1 ? "polite" : undefined}>
           <p className="question">{message.question}</p>
           <div className="response">
             <p className="response-author">{assistant.organizationName} assistant</p>
-            <CitedAnswer answer={message.answer} index={i} />
+            <AnswerView answer={message.answer} index={i} />
           </div>
         </section>)}
         {busy && <p className="muted" role="status">Searching and preparing an answer…</p>}
