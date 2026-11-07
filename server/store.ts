@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { DatabaseSync, type SQLInputValue } from "node:sqlite";
-import { LIMITS, type DocumentInfo } from "../shared/contracts.js";
+import { LIMITS, type DocumentInfo, type Usage } from "../shared/contracts.js";
 
 export class RequestError extends Error {
   constructor(readonly status: 400 | 401 | 404 | 409 | 413 | 422 | 429 | 503, message: string) {
@@ -57,7 +57,7 @@ export function createStore(db: DatabaseSync) {
       FOREIGN KEY (org_id, document_id) REFERENCES documents(org_id, id) ON DELETE CASCADE
     );
     CREATE INDEX IF NOT EXISTS chunks_by_document ON chunks(org_id, document_id);
-    CREATE VIRTUAL TABLE IF NOT EXISTS chunk_search USING fts5(text, content='chunks', content_rowid='id', tokenize='unicode61');
+    CREATE VIRTUAL TABLE IF NOT EXISTS chunk_search USING fts5(text, content='chunks', content_rowid='id', tokenize='porter unicode61');
     CREATE TRIGGER IF NOT EXISTS chunk_insert AFTER INSERT ON chunks BEGIN
       INSERT INTO chunk_search(rowid, text) VALUES (new.id, new.text);
     END;
@@ -68,7 +68,10 @@ export function createStore(db: DatabaseSync) {
       org_id TEXT PRIMARY KEY REFERENCES organization(id) ON DELETE CASCADE,
       asked INTEGER NOT NULL DEFAULT 0,
       answered INTEGER NOT NULL DEFAULT 0,
-      no_answer INTEGER NOT NULL DEFAULT 0
+      no_answer INTEGER NOT NULL DEFAULT 0,
+      needs_clarification INTEGER NOT NULL DEFAULT 0,
+      unresolved INTEGER NOT NULL DEFAULT 0,
+      failed INTEGER NOT NULL DEFAULT 0
     );
     UPDATE documents SET status = 'failed', error = 'Processing was interrupted. Retry this upload.' WHERE status = 'processing';
   `);
@@ -176,7 +179,20 @@ export function createStore(db: DatabaseSync) {
       const terms = [...new Set((question.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [])
         .filter(term => term.length > 2 && !stop.has(term)))].slice(0, 24);
       if (!terms.length) return [];
-      const match = terms.map(term => `"${term}"`).join(" OR ");
+      const quoted = terms.map(term => `"${term}"`);
+      // Measure overlap across the corpus so a question can still retrieve several PDFs.
+      if (terms.length >= 3) {
+        const coverage = one<{ total: number }>(`
+          SELECT COUNT(*) AS total FROM json_each(?) term WHERE EXISTS (
+            SELECT 1 FROM chunk_search
+            JOIN chunks c ON c.id = chunk_search.rowid
+            JOIN documents d ON d.org_id = c.org_id AND d.id = c.document_id
+            WHERE chunk_search MATCH term.value AND c.org_id = ? AND d.status = 'ready'
+          )
+        `, JSON.stringify(quoted), org)!;
+        if (coverage.total < 2) return [];
+      }
+      const match = quoted.join(" OR ");
       return all<Omit<Passage, "id">>(`
         SELECT d.name, c.page, c.text FROM chunk_search
         JOIN chunks c ON c.id = chunk_search.rowid
@@ -185,14 +201,14 @@ export function createStore(db: DatabaseSync) {
         ORDER BY bm25(chunk_search), c.id LIMIT 10
       `, match, org).map((passage, i) => ({ ...passage, id: `E${i + 1}` }));
     },
-    count(org: string, event: "asked" | "answered" | "no_answer") {
+    count(org: string, event: keyof Usage) {
       db.prepare("INSERT OR IGNORE INTO usage (org_id) VALUES (?)").run(org);
       db.prepare(`UPDATE usage SET ${event} = ${event} + 1 WHERE org_id = ?`).run(org);
     },
     usage(org: string) {
-      return one<{ asked: number; answered: number; no_answer: number }>(
-        "SELECT asked, answered, no_answer FROM usage WHERE org_id = ?", org,
-      ) ?? { asked: 0, answered: 0, no_answer: 0 };
+      return one<Usage>(
+        "SELECT asked, answered, no_answer, needs_clarification, unresolved, failed FROM usage WHERE org_id = ?", org,
+      ) ?? { asked: 0, answered: 0, no_answer: 0, needs_clarification: 0, unresolved: 0, failed: 0 };
     },
   };
 }

@@ -4,6 +4,15 @@ export interface AssistantInfo {
   organizationName: string;
 }
 
+export interface Usage {
+  asked: number;
+  answered: number;
+  no_answer: number;
+  needs_clarification: number;
+  unresolved: number;
+  failed: number;
+}
+
 export interface DocumentInfo {
   id: string;
   name: string;
@@ -30,7 +39,7 @@ export interface DecisionCheck {
 }
 
 export interface Answer {
-  status: "answered" | "no_answer" | "needs_clarification" | "acknowledged";
+  status: "answered" | "no_answer" | "needs_clarification" | "unresolved" | "acknowledged";
   text: string;
   references: Reference[];
   decision?: { verdict: "Conditions met" | "Conditions not met" | "Uncertain"; checks: DecisionCheck[] };

@@ -192,6 +192,9 @@ export function Dashboard() {
           <div><span>Questions</span><strong>{data.usage.asked}</strong></div>
           <div><span>Answered</span><strong>{data.usage.answered}</strong></div>
           <div><span>Unable to answer</span><strong>{data.usage.no_answer}</strong></div>
+          <div><span>Needs clarification</span><strong>{data.usage.needs_clarification}</strong></div>
+          <div><span>Needs review</span><strong>{data.usage.unresolved}</strong></div>
+          <div><span>Service errors</span><strong>{data.usage.failed}</strong></div>
         </div>
         <div className="dashboard-grid">
           <section className="panel">
@@ -214,6 +217,9 @@ export function Dashboard() {
           <section className="panel">
             <h2>Visitor assistant</h2>
             <p className="muted">Share this link with visitors. Answers can quote your uploaded documents.</p>
+            {data.assistantNeedsRegeneration && <p className="error" role="alert">
+              The saved assistant link could not be opened. Regenerate it to get a new shareable link.
+            </p>}
             {url && <>
               <label>Assistant URL<input readOnly value={url} onFocus={event => event.currentTarget.select()} /></label>
               <div className="actions">
@@ -224,8 +230,8 @@ export function Dashboard() {
               <div className="actions"><button onClick={() => void copy(embed, "Embed code")}>Copy embed</button></div>
             </>}
             <button className="primary" disabled={busy} onClick={() => {
-              if (!url || window.confirm("Generate a new link? Existing links and embeds will stop working.")) action("/api/admin/assistant", "POST");
-            }}>{url ? "Regenerate token" : "Generate assistant link"}</button>
+              if ((!url && !data.assistantNeedsRegeneration) || window.confirm("Generate a new link? Existing links and embeds will stop working.")) action("/api/admin/assistant", "POST");
+            }}>{url || data.assistantNeedsRegeneration ? "Regenerate token" : "Generate assistant link"}</button>
           </section>
         </div>
       </>}

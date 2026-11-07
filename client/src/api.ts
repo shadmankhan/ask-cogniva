@@ -1,6 +1,6 @@
 import { createAuthClient } from "better-auth/react";
 import { organizationClient } from "better-auth/client/plugins";
-import type { DocumentInfo } from "../../shared/contracts.js";
+import type { DocumentInfo, Usage } from "../../shared/contracts.js";
 
 export const auth = createAuthClient({ plugins: [organizationClient()] });
 
@@ -20,6 +20,7 @@ export async function api<T>(path: string, init?: RequestInit): Promise<T> {
 export interface DashboardData {
   organization: { id: string; name: string };
   documents: DocumentInfo[];
-  usage: { asked: number; answered: number; no_answer: number };
+  usage: Usage;
   token: string | null;
+  assistantNeedsRegeneration: boolean;
 }

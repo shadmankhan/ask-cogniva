@@ -3,7 +3,17 @@ import { defineConfig, loadEnv } from "vite";
 
 export default defineConfig(({ mode }) => ({
   root: "client",
-  plugins: [react()],
+  plugins: [react(), {
+    name: "protect-dashboard-framing",
+    configureServer(server) {
+      server.middlewares.use((request, response, next) => {
+        if (new URL(request.url ?? "/", "http://localhost").pathname !== "/assistant") {
+          response.setHeader("Content-Security-Policy", "frame-ancestors 'none'");
+        }
+        next();
+      });
+    },
+  }],
   server: {
     host: "localhost",
     port: 5173,

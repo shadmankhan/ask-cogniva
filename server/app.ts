@@ -69,6 +69,10 @@ export async function createApp(settings: { db: DatabaseSync; origin: string; se
     console.error("Cogniva request failed", { method: c.req.method, type: error.name });
     return c.json({ error: "Something went wrong. Try again." }, 500);
   });
+  app.use("*", async (c, next) => {
+    if (c.req.path !== "/assistant") c.header("Content-Security-Policy", "frame-ancestors 'none'");
+    await next();
+  });
   app.use("/api/*", async (c, next) => {
     c.header("Cache-Control", "no-store");
     c.header("Referrer-Policy", "no-referrer");
@@ -109,9 +113,14 @@ export async function createApp(settings: { db: DatabaseSync; origin: string; se
     const acknowledgment = assistantReply(question, org.name);
     if (acknowledgment) return c.json<Answer>({ status: "acknowledged", text: acknowledgment, references: [] });
     store.count(org.id, "asked");
-    const result = await answerQuestion(models, question, store.search(org.id, question));
-    store.count(org.id, result.status === "answered" ? "answered" : "no_answer");
-    return c.json(result);
+    try {
+      const result = await answerQuestion(models, question, store.search(org.id, question));
+      if (result.status !== "acknowledged") store.count(org.id, result.status);
+      return c.json(result);
+    } catch (error) {
+      store.count(org.id, "failed");
+      throw error;
+    }
   });
 
   const admin = new Hono<{ Variables: { org: { id: string; name: string } } }>();
@@ -129,9 +138,18 @@ export async function createApp(settings: { db: DatabaseSync; origin: string; se
   admin.get("/dashboard", c => {
     const org = c.get("org");
     const assistant = store.assistant(org.id);
+    let token: string | null = null;
+    let assistantNeedsRegeneration = false;
+    if (assistant) {
+      try {
+        token = tokens.unseal(assistant.sealed_token);
+      } catch {
+        assistantNeedsRegeneration = true;
+      }
+    }
     return c.json({
       organization: org, documents: store.list(org.id), usage: store.usage(org.id),
-      token: assistant ? tokens.unseal(assistant.sealed_token) : null,
+      token, assistantNeedsRegeneration,
     });
   });
   admin.post("/assistant", c => {

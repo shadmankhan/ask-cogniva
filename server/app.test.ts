@@ -7,7 +7,7 @@ import { createFixturePdf } from "../fixtures/pdf.js";
 import type { Answer, DocumentInfo } from "../shared/contracts.js";
 import { createApp } from "./app.js";
 import type { Models } from "./models.js";
-import { RequestError, type Passage } from "./store.js";
+import { createStore, RequestError, type Passage } from "./store.js";
 
 const origin = "http://localhost:5173";
 const json = (body: unknown) => ({ headers: { "Content-Type": "application/json", Origin: origin }, body: JSON.stringify(body) });
@@ -94,7 +94,7 @@ async function setup(context: TestContext) {
     });
   }
   const ask = (token: string, question: string) => request("/api/ask", { ...json({ token, question }), method: "POST" });
-  return { stub, request, organization, upload, ask };
+  return { db, stub, request, organization, upload, ask };
 }
 
 test("signup, tenant-isolated retrieval and file access, token rotation, and deletion", async t => {
@@ -131,6 +131,9 @@ test("signup, tenant-isolated retrieval and file access, token rotation, and del
   assert.deepEqual(grounded.references.map(ref => [ref.name, ref.page]), [[file.name, 2]]);
   const outside = await (await ask(b.token, "OBSERVATORY-17")).json() as Answer;
   assert.equal(outside.status, "no_answer");
+  const beforeIsolated = stub.calls.length;
+  assert.equal((await (await ask(b.token, question)).json() as Answer).status, "no_answer");
+  assert.equal(stub.calls.length, beforeIsolated);
   assert.ok(stub.calls.every(call => call.passages.every(p => !p.text.includes("Harborlight"))));
   const newToken = await a.rotate();
   assert.equal((await ask(a.token, question)).status, 401);
@@ -158,7 +161,9 @@ test("handles greetings, thanks, and identity questions without searching the PD
     assert.deepEqual(reply.references, []);
   }
   const dashboard = await request("/api/admin/dashboard", { headers: org.headers });
-  assert.deepEqual((await dashboard.json()).usage, { asked: 0, answered: 0, no_answer: 0 });
+  assert.deepEqual((await dashboard.json()).usage, {
+    asked: 0, answered: 0, no_answer: 0, needs_clarification: 0, unresolved: 0, failed: 0,
+  });
   assert.equal(stub.calls.length, 0);
 
   assert.equal((await upload(org.headers, await createFixturePdf(organizations[0].files[1].pages))).status, 201);
@@ -317,8 +322,8 @@ test("answers supported museum hours and identifies the unsupported part of the 
   assert.equal(response.status, 200, await response.clone().text());
   const result = await response.json() as Answer;
   assert.equal(result.status, "answered");
-  assert.match(result.text, /10:00 on weekdays\. \[\[E1\]\]/);
-  assert.match(result.text, /09:00 on weekends\. \[\[E2\]\]/);
+  assert.ok(result.text.includes(`${weekday} [[E1]]`));
+  assert.ok(result.text.includes(`${weekend} [[E2]]`));
   assert.ok(result.text.includes(`I couldn’t find a supported answer in this organization’s PDFs for “${unknown.slice(0, -1)}”.`));
   assert.deepEqual(result.references.map(ref => [ref.id, ref.page, ref.quote]), [
     ["E1", 1, weekday],
@@ -376,4 +381,89 @@ test("keeps grounded answers across PDFs even when the planner selects only one 
     ["Tour Guide.pdf", 1, rate],
     ["Visitor Hours.pdf", 1, hours],
   ]);
+});
+
+test("displays the verified excerpt when the composer attaches an unrelated claim to a real quote", async t => {
+  const { stub, organization, upload, ask } = await setup(t);
+  const org = await organization("northbridge");
+  assert.equal((await upload(org.headers, await createFixturePdf(organizations[0].files[1].pages))).status, 201);
+  const quote = "The library opens at 08:00 on weekdays.";
+  stub.reply = (question, passages) => ({ parts: [{ question, claims: [{
+    text: "Tuition is completely free for everyone.",
+    evidenceId: passages.find(passage => passage.text.includes(quote))!.id, quote,
+  }] }] });
+  const response = await ask(org.token, "When does the library open on weekdays?");
+  assert.equal(response.status, 200);
+  const reply = await response.json() as Answer;
+  assert.equal(reply.text, `${quote} [[E1]]`);
+  assert.doesNotMatch(reply.text, /Tuition|free/);
+});
+
+test("keeps unparseable numeric checks in code and counts clarification, uncertainty, and failures separately", async t => {
+  const { stub, request, organization, upload, ask } = await setup(t);
+  const org = await organization("science-club");
+  const quote = "Minimum research score: 3.5";
+  assert.equal((await upload(org.headers, await createFixturePdf([["Science Club Research Policy", quote]]))).status, 201);
+  let ruleQuote = "Minimum research score";
+  let fact = "3.5";
+  stub.plan = (_question, passages) => ({
+    kind: "decision", evidenceIds: [passages[0].id], policy: "Science Club Research Policy",
+    scope: { evidenceId: passages[0].id, quote: "Science Club Research Policy" }, combine: "all",
+    conditions: [{
+      label: "Research score", rule: { evidenceId: passages[0].id, quote: ruleQuote },
+      fact, predicate: "The score satisfies the minimum", expected: true,
+    }],
+  });
+  const question = "Can I join the science club research program? My score is 3.5.";
+  const uncertain = await (await ask(org.token, question)).json() as Answer;
+  assert.equal(uncertain.status, "unresolved");
+  assert.equal(uncertain.decision?.verdict, "Uncertain");
+  assert.deepEqual(uncertain.decision?.checks.map(check => check.method), ["Choice", "Rule"]);
+  assert.equal(stub.decisions, 1);
+
+  ruleQuote = quote;
+  const passed = await (await ask(org.token, question)).json() as Answer;
+  assert.equal(passed.decision?.verdict, "Conditions met");
+  fact = "";
+  assert.equal((await (await ask(org.token, "Can I join the science club research program?")).json() as Answer).status, "needs_clarification");
+  stub.fail = "question_plan";
+  assert.equal((await ask(org.token, question)).status, 503);
+  const dashboard = await request("/api/admin/dashboard", { headers: org.headers });
+  assert.deepEqual((await dashboard.json()).usage, {
+    asked: 4, answered: 1, no_answer: 0, needs_clarification: 1, unresolved: 1, failed: 1,
+  });
+});
+
+test("a corrupted saved token leaves the dashboard usable and can be regenerated", async t => {
+  const { db, request, organization, ask } = await setup(t);
+  const org = await organization("museum");
+  db.prepare("UPDATE assistants SET sealed_token = ?").run("unreadable-saved-value");
+  const dashboard = await request("/api/admin/dashboard", { headers: org.headers });
+  assert.equal(dashboard.status, 200);
+  assert.equal(dashboard.headers.get("content-security-policy"), "frame-ancestors 'none'");
+  const data = await dashboard.json();
+  assert.equal(data.token, null);
+  assert.equal(data.assistantNeedsRegeneration, true);
+  const next = await org.rotate();
+  const recovered = await (await request("/api/admin/dashboard", { headers: org.headers })).json();
+  assert.equal(recovered.token, next);
+  assert.equal(recovered.assistantNeedsRegeneration, false);
+  assert.equal((await ask(org.token, "Hi")).status, 401);
+  assert.equal((await ask(next, "Hi")).status, 200);
+});
+
+test("a fresh database initializes usage counters and a stemmed search index", async t => {
+  const { db, request, organization, upload } = await setup(t);
+  const org = await organization("makerspace");
+  assert.equal((await upload(org.headers, await createFixturePdf([[
+    "Reservation Guide", "Members reserved equipment in advance.",
+  ]]))).status, 201);
+  const orgId = (await (await request("/api/admin/dashboard", { headers: org.headers })).json()).organization.id as string;
+  const store = createStore(db);
+  store.count(orgId, "asked");
+  assert.equal(store.search(orgId, "reserve").length, 1);
+  assert.equal(store.list(orgId)[0].status, "ready");
+  assert.deepEqual({ ...store.usage(orgId) }, {
+    asked: 1, answered: 0, no_answer: 0, needs_clarification: 0, unresolved: 0, failed: 0,
+  });
 });

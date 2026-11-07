@@ -1,18 +1,12 @@
 import { Type, type Static } from "typebox";
 import type { Answer, DecisionCheck, Reference } from "../shared/contracts.js";
 import { requireModelResult, type Models } from "./models.js";
+import { evaluateNumeric, isNumericCondition, numbers } from "./rules.js";
 import { RequestError, type Passage } from "./store.js";
 
 const enumOf = <const T extends readonly string[]>(values: T) =>
   Type.Unsafe<T[number]>({ type: "string", enum: values });
 
-const comparisons = {
-  at_least: /\b(?:at least|minimum|no less than|not less than)\b|≥|>=/i,
-  at_most: /\b(?:at most|maximum|up to|no more than|not more than)\b|≤|<=/i,
-  greater_than: /(?<!no |not )\b(?:more than|greater than|over|above)\b|>(?!=)/i,
-  less_than: /(?<!no |not )\b(?:less than|under|below)\b|<(?!=)/i,
-  equals: /\b(?:exactly|equals?)\b/i,
-};
 const citation = Type.Object({
   evidenceId: Type.String(),
   quote: Type.String({ minLength: 8, maxLength: 350 }),
@@ -126,7 +120,7 @@ Use plain text for claims, with no citation markers. If rulesOnly is true, descr
       const text = claim.text.trim();
       if (!source || !text) return [];
       const citedNumbers = numbers(source.quote);
-      return numbers(text).every(value => citedNumbers.includes(value)) ? [{ text, source }] : [];
+      return numbers(text).every(value => citedNumbers.includes(value)) ? [{ text: source.quote, source }] : [];
     });
     claims.push(...grounded);
     const label = part.question.trim().replace(/[?!.]+$/, "");
@@ -144,39 +138,9 @@ Use plain text for claims, with no citation markers. If rulesOnly is true, descr
   return claims.length ? formatClaims(claims, gaps) : undefined;
 }
 
-function numbers(text: string) {
-  return (text.match(/(?<![\p{L}\p{N}.])[-+]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?(?![\p{L}\p{N}])/gu) ?? [])
-    .map(value => Number(value.replace(/,/g, "")));
-}
-
-function numericRule(quote: string) {
-  const limits = numbers(quote);
-  const operators = (Object.keys(comparisons) as (keyof typeof comparisons)[])
-    .filter(operator => comparisons[operator].test(quote));
-  const [limit] = limits;
-  if (limits.length === 1 && operators.length === 1) {
-    const operator = operators[0];
-    return (actual: number) => ({
-      at_least: actual >= limit, at_most: actual <= limit,
-      greater_than: actual > limit, less_than: actual < limit, equals: actual === limit,
-    })[operator];
-  }
-  const list = quote.match(/\b\d+(?:\s*(?:,|\bor\b|\band\b)\s*\d+)+\b/i);
-  if (!operators.length && limits.length >= 2 && list && /\b(?:one of|eligible|allowed|accepted|permitted|restricted to)\b/i.test(quote) &&
-      numbers(list[0]).length === limits.length) return (actual: number) => limits.includes(actual);
-}
-
-function measurementUnit(text: string) {
-  return text.match(/\b(?:seconds?|minutes?|hours?|days?|weeks?|months?|years?|kilograms?|grams?|kilometers?|meters?|liters?|USD|EUR|GBP|percent)\b|[%$€£]/i)?.[0]
-    .toLowerCase().replace(/s$/, "").replace("percent", "%");
-}
-
 async function evaluate(models: Models, check: Check): Promise<EvaluatedCheck> {
-  const numeric = numericRule(check.rule.quote);
-  if (numeric) {
-    const values = numbers(check.fact);
-    const comparable = values.length === 1 && measurementUnit(check.rule.quote) === measurementUnit(check.fact);
-    return { label: check.label, method: "Rule", result: !comparable ? "Uncertain" : numeric(values[0]) ? "Pass" : "Fail" };
+  if (isNumericCondition(check.rule.quote, check.fact)) {
+    return { label: check.label, method: "Rule", result: evaluateNumeric(check.rule.quote, check.fact) };
   }
   const outcome = requireModelResult<Static<typeof conditionResultSchema>>(conditionResultSchema, await models.decide(
     check.fact,
@@ -199,7 +163,7 @@ async function evaluate(models: Models, check: Check): Promise<EvaluatedCheck> {
 async function explainUnresolved(models: Models, question: string, passages: Passage[]): Promise<Answer> {
   const answer = await compose(models, question, passages, true);
   return answer ? {
-    status: "answered",
+    status: "unresolved",
     text: `I couldn’t verify a decision for your situation. Here’s what the documents say.\n\n${answer.text}`,
     references: answer.references,
   } : noAnswer();
@@ -209,8 +173,8 @@ async function runDecision(models: Models, question: string, passages: Passage[]
   const scope = reference(passages, plan.scope);
   const rules = plan.conditions.map(check => reference(passages, check.rule));
   if (!scope || !plan.policy.trim() || rules.some(rule => !rule) || plan.conditions.some(check =>
-    !check.label.trim() || (!numericRule(check.rule.quote) && !check.predicate.trim()) ||
-    (!numericRule(check.rule.quote) && !check.expected && /\b(?:not|never|without)\b|n['’]t\b/i.test(check.predicate)) ||
+    !check.label.trim() || (!isNumericCondition(check.rule.quote, check.fact) && !check.predicate.trim()) ||
+    (!isNumericCondition(check.rule.quote, check.fact) && !check.expected && /\b(?:not|never|without)\b|n['’]t\b/i.test(check.predicate)) ||
     (check.fact.trim() && !includesQuote(question, check.fact)),
   )) return explainUnresolved(models, question, passages);
   if (plan.combine === "any" && ![scope, ...rules].some(rule => rule && /\b(?:either|or|one of|any of)\b/i.test(rule.quote))) {
@@ -253,10 +217,11 @@ async function runDecision(models: Models, question: string, passages: Passage[]
   const explanation = await compose(models, question, passages, true).catch(error => {
     if (!(error instanceof RequestError) || error.status !== 503) throw error;
   });
-  if (explanation) return { status: "answered", ...explanation, decision };
+  const status = verdict === "Uncertain" ? "unresolved" : "answered";
+  if (explanation) return { status, ...explanation, decision };
   const verifiedRules = rules.filter(rule => rule !== undefined);
   return {
-    status: "answered",
+    status,
     ...formatClaims(verifiedRules.map(source => ({ text: source.quote, source }))),
     decision,
   };
