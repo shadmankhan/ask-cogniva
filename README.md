@@ -4,7 +4,7 @@ Cogniva gives each organization a private PDF knowledge base and a shareable ass
 
 ## Architecture
 
-A single view of PDF ingestion, organization-scoped retrieval, factual verification, and policy decisions.
+A single view of PDF ingestion, organization-scoped retrieval, factual verification, and policy decisions. [Explaination Video](https://youtu.be/jXEThtxZn2I?si=kEC0Sz0jd4O_jB6C)
 
 ![Cogniva master architecture: PDF ingestion, organization-scoped retrieval, factual verification, policy evaluation, and cited responses](docs/images/architecture.svg)
 
