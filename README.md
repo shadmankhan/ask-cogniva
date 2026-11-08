@@ -124,12 +124,12 @@ The evaluator creates a temporary in-memory database, registers test organizatio
 
 Acceptance checks use expected statuses, verdicts, and text fragments. Review the saved answers and references manually; a matching fragment alone is not proof of correctness. Measured results and remaining failures are recorded in [the validation report](docs/validation-report.md). The dashboard separates answered, unanswered, needs-clarification, needs-review, and service-error counts.
 
-The 8–15 minute demo video is recorded separately.
-
 ## Demo walkthrough
 
 1. Sign up as a new organization, upload a PDF, and show the document status and assistant link.
 2. Open the seeded Northbridge dashboard, paste its embed into the separate page, and ask when the library opens. Open the page citation.
 3. Ask both multi-condition scholarship questions from the fixture list. Expand **How Cogniva decided** and explain the source-derived condition ledger, Laya's typed outputs, and the TypeScript combination. The same workflow can process rules from other domains.
 4. Ask for the Northbridge library desk code using both organizations' assistants. Northbridge has the code, while Harborlight's knowledge base gives no answer. Show a Harborlight-specific question too.
-5. Explain the architecture diagram, invalid-token behavior, and the isolation tests. The assignment video is approximately 8–15 minutes.
+5. Explain the architecture diagram, invalid-token behavior, and the isolation tests.
+
+The 8–15 minute demo video is recorded is [here](https://youtu.be/jXEThtxZn2I?si=DYAoCCBc1soIzEoC).
