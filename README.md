@@ -4,49 +4,17 @@ Cogniva gives each organization a private PDF knowledge base and a shareable ass
 
 ## Architecture
 
-Cogniva has two flows. An administrator builds the organization’s knowledge base, then visitors ask questions through its assistant. Each box names the process and the technology that implements it.
+A single view of PDF ingestion, organization-scoped retrieval, factual verification, and policy decisions.
 
-**Preparing the knowledge base**
+![Cogniva master architecture: PDF ingestion, organization-scoped retrieval, factual verification, policy evaluation, and cited responses](docs/images/architecture.svg)
 
-```mermaid
-flowchart LR
-  Admin["Admin dashboard<br/>(React)"] --> PDF["PDF processing<br/>(pdf-lib + AnyDoc)"]
-  PDF --> KB[("Knowledge base<br/>(SQLite + FTS5)")]
-```
+Open [architecture.html](architecture.html) locally to zoom, pan, highlight a flow, or select a step for its implementation details. No app startup is needed. The [editable draw.io file](docs/architecture.drawio) contains native shapes and connectors; the [SVG](docs/images/architecture.svg) is available for presentations.
 
-**Answering a visitor**
+## Chat preview
 
-```mermaid
----
-config:
-  flowchart:
-    rankSpacing: 20
-    padding: 12
----
-flowchart LR
-  Chat["Visitor chat<br/>(React / iframe)"] --> Server["API server<br/>(Node.js / Hono)"]
-  Server --> Search["PDF search<br/>(SQLite FTS5)"]
-  Search --> Plan["Question plan<br/>(LLM)"]
-  Plan -->|Factual| Answer["Cited answer<br/>(LLM + checks)"]
-  Plan -->|Decision| Checks["Policy checks and verdict<br/>(Laya + TypeScript)"]
-  Checks --> Answer
-```
+![Cogniva chat showing cited answers, expandable PDF sources, and a decision checklist](docs/images/chat-ui-preview.jpg)
 
-LLM means large language model. OpenRouter, Gemini, or Ollama supplies the configured model. In policy checks, Laya runs Choice and Boolean decisions, while TypeScript handles numeric rules and combines the results.
-
-| Component | Technology | What it does |
-| --- | --- | --- |
-| Admin dashboard | React | Gives each organization a screen to manage its PDFs, assistant link, and usage. |
-| PDF processing | pdf-lib and AnyDoc | Extracts readable text and divides it into searchable passages while keeping page numbers. |
-| Knowledge base | SQLite and FTS5 | Stores the PDFs and their passages and provides word-based search within one organization. |
-| Visitor chat | React, json-render, and an HTML iframe | Displays response cards, sources, and decision checks on the assistant page or inside another website. |
-| API server | Node.js and Hono | The web server handles API requests and validates the assistant token to identify the organization. |
-| PDF search | SQLite FTS5 | Searches that organization’s passages for relevant words and keeps document and page references. |
-| Question plan | Language model through OpenRouter, Gemini, or Ollama | Classifies the request and selects source IDs; each policy requirement is then collected from the source text. |
-| Rules and verdict | Laya and TypeScript | Laya checks policy applicability and semantic conditions, then code compares numbers and combines the results. |
-| Cited answer | Language model and server validation | Writes cited claims, validates source quotations in code, and separately reviews factual support and question relevance. Policy explanations retain the calculated verdict. |
-
-The visitor UI uses `@json-render/core` and `@json-render/react` with a small catalog of read-only components. Application code maps the existing API response into that catalog; no LLM generates the layout or makes an extra request. Status labels preserve clarification and review outcomes, citation links open their source cards without rewriting the assistant token fragment, and decision checks retain the server's calculated results. Zod validates answer props before rendering; if validation fails, the same components render through a direct fallback. The backend contracts and verification workflow are unchanged.
+*UI preview using local test responses.*
 
 ## Run locally
 
@@ -95,7 +63,7 @@ TypeScript handles clear numeric thresholds, inclusive boundaries, ranges, allow
 
 Independent Laya inputs run through its batch endpoint in groups of four, with short instructions and bounded context. Calls are serialized at the adapter to avoid competing CPU requests. `npm run laya` waits for health and performs real Choice and Boolean warm-up checks before reporting readiness. This avoids the previous cold-start and queued-request timing problem; it does not guarantee that every inference or external API request will succeed.
 
-The answer composer receives the **calculated verdict and checks**. For factual answers, one separate structured call to the selected LLM reviews each candidate's support and relevance, using the full question and actual cited source pages. It can select a corrected quotation from that same page. The server validates the selected quotation against the real page and checks numeric values coupled to their explicit units and currencies before accepting a paraphrase. If semantic support and relevance pass but the numeric check fails, the original source wording is used. A claim rejected on semantic grounds returns for review; a separate excerpt-relevance vote cannot override that rejection. Relevance remains model-dependent: an exact quote does not prove it answers the question. Laya remains responsible for structured policy checks rather than acting as a universal factual-answer veto.
+The answer composer receives the **calculated verdict and checks**. For factual answers, one separate structured call to the selected LLM reviews each candidate's support and relevance, using the full question and actual cited source pages. It can select a corrected quotation from that same page. The server validates the selected quotation against the real page and checks numeric values coupled to their explicit units and currencies before accepting a paraphrase. If semantic support and relevance pass but the numeric check fails, the original source wording is used. Conflicting support and excerpt-relevance assessments require review; clearly irrelevant claims are discarded. An excerpt-relevance vote cannot override an unsupported claim. Relevance remains model-dependent: an exact quote does not prove it answers the question. Laya remains responsible for structured policy checks rather than acting as a universal factual-answer veto.
 
 Decision replies retain verified policy excerpts beside the calculated verdict, so generated approval wording cannot override it. Explicit question parts are tracked in application code, and a missing part gets a clear unsupported-information message alongside supported answers. Inconclusive or unavailable factual verification returns `unresolved`, not a claim that the PDFs lack the information. No supporting evidence found returns `no_answer`. The extra factual review and optional numeric fact correction use the configured provider and consume its normal quota; there are no automatic provider fallbacks or unbounded retries.
 
@@ -134,7 +102,7 @@ The 20-question-per-minute organization limit protects the local demo, but one v
 
 `npm test` uses real SQLite, PDF processing, authentication, and HTTP routes with controlled model outputs, plus client answer-card regressions for citations, verdict tones, catalog fallback, and source reveal. Server regressions cover omitted mandatory conditions, factual-route bypass, prohibition polarity, conservative combination, verdict-aware composition, full-document policy context, batch truncation, tenant isolation, upload limits, token recovery, and usage counters. `npm run build` checks TypeScript and builds the client. GitHub Actions runs the build and deterministic tests.
 
-The additional [fictional knowledge base](fixtures/knowledge-base) contains **three organizations with three PDFs each**. Its policies differ from the smaller original seed fixtures. [fixtures/evaluation.json](fixtures/evaluation.json) contains 15 labeled cases spanning direct information, procedures, comparisons, multi-source and mixed supported/unsupported questions, missing facts, numeric failures, and an unrelated-organization question.
+The additional [fictional knowledge base](fixtures/knowledge-base) contains **three organizations with three PDFs each**. Its policies differ from the smaller original seed fixtures. [fixtures/evaluation.json](fixtures/evaluation.json) contains 17 labeled cases spanning direct information, procedures, comparisons, multi-source and mixed supported/unsupported questions, missing facts, numeric failures, and an unrelated-organization question.
 
 Run live checks separately from unit tests:
 

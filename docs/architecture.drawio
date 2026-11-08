@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" type="device" version="24.7.17">
+  <diagram id="cogniva-master" name="Master architecture">
+    <mxGraphModel dx="2560" dy="1560" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2560" pageHeight="1560" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="heading" value="Cogniva · master architecture" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontFamily=Helvetica;fontSize=32;fontStyle=1;fontColor=#14243b;" vertex="1" parent="1">
+          <mxGeometry x="55" y="30" width="1400" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="subheading" value="PDF → organization knowledge → retrieval → verified response" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=18;fontColor=#526176;" vertex="1" parent="1">
+          <mxGeometry x="55" y="87" width="1500" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="lane-ingest" value="" style="rounded=1;arcSize=5;html=1;fillColor=#f5f8ff;strokeColor=#e0e6ef;" vertex="1" parent="1">
+          <mxGeometry x="40" y="145" width="2480" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="title-ingest" value="01 · PREPARE ORGANIZATION KNOWLEDGE" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=16;fontStyle=1;fontColor=#2563eb;" vertex="1" parent="1">
+          <mxGeometry x="60" y="161" width="2440" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="sub-ingest" value="Admin-only upload · validation · local extraction · atomic indexing" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=14;fontColor=#66778d;" vertex="1" parent="1">
+          <mxGeometry x="60" y="197" width="2440" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="lane-entry" value="" style="rounded=1;arcSize=5;html=1;fillColor=#f3fafb;strokeColor=#e0e6ef;" vertex="1" parent="1">
+          <mxGeometry x="40" y="470" width="1100" height="265" as="geometry" />
+        </mxCell>
+        <mxCell id="title-entry" value="02 · IDENTIFY AND RETRIEVE" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=16;fontStyle=1;fontColor=#0e7490;" vertex="1" parent="1">
+          <mxGeometry x="60" y="486" width="1060" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="sub-entry" value="Assistant token → organization → its ready source pages" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=14;fontColor=#66778d;" vertex="1" parent="1">
+          <mxGeometry x="60" y="522" width="1060" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="lane-factual" value="" style="rounded=1;arcSize=5;html=1;fillColor=#faf7ff;strokeColor=#e0e6ef;" vertex="1" parent="1">
+          <mxGeometry x="1170" y="470" width="1350" height="265" as="geometry" />
+        </mxCell>
+        <mxCell id="title-factual" value="03 · ANSWER INFORMATION QUESTIONS" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=16;fontStyle=1;fontColor=#7c3aed;" vertex="1" parent="1">
+          <mxGeometry x="1190" y="486" width="1310" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="sub-factual" value="Draft → separate review → deterministic source checks" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=14;fontColor=#66778d;" vertex="1" parent="1">
+          <mxGeometry x="1190" y="522" width="1310" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="lane-decision" value="" style="rounded=1;arcSize=5;html=1;fillColor=#fffcf4;strokeColor=#e0e6ef;" vertex="1" parent="1">
+          <mxGeometry x="600" y="790" width="1510" height="610" as="geometry" />
+        </mxCell>
+        <mxCell id="title-decision" value="04 · EVALUATE A PERSONALIZED POLICY REQUEST" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=16;fontStyle=1;fontColor=#b45309;" vertex="1" parent="1">
+          <mxGeometry x="620" y="806" width="1470" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="sub-decision" value="Source requirements → visitor facts → typed checks → code-owned verdict" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=14;fontColor=#66778d;" vertex="1" parent="1">
+          <mxGeometry x="620" y="842" width="1470" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="lane-response" value="" style="rounded=1;arcSize=5;html=1;fillColor=#f2fbf7;strokeColor=#e0e6ef;" vertex="1" parent="1">
+          <mxGeometry x="2140" y="790" width="380" height="610" as="geometry" />
+        </mxCell>
+        <mxCell id="title-response" value="05 · RETURN AND DISPLAY" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontSize=16;fontStyle=1;fontColor=#047857;" vertex="1" parent="1">
+          <mxGeometry x="2160" y="806" width="340" height="32" as="geometry" />
+        </mxCell>
+        <mxCell id="sub-response" value="Verified data → fixed UI" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=14;fontColor=#66778d;" vertex="1" parent="1">
+          <mxGeometry x="2160" y="842" width="340" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-upload-auth" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#64748b;strokeWidth=2;labelBackgroundColor=#ffffff;fontColor=#526176;fontSize=13;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="upload" target="auth">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-auth-validate" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#64748b;strokeWidth=2;labelBackgroundColor=#ffffff;fontColor=#526176;fontSize=13;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="auth" target="validate">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-validate-extract" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#64748b;strokeWidth=2;labelBackgroundColor=#ffffff;fontColor=#526176;fontSize=13;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="validate" target="extract">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-extract-chunk" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#64748b;strokeWidth=2;labelBackgroundColor=#ffffff;fontColor=#526176;fontSize=13;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="extract" target="chunk">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-publish" value="publish" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#64748b;strokeWidth=2;labelBackgroundColor=#ffffff;fontColor=#526176;fontSize=13;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="chunk" target="kb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-read" value="read ready pages" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#0e7490;strokeWidth=2;labelBackgroundColor=#ffffff;fontColor=#526176;fontSize=13;exitX=0.5;exitY=1.0;exitDx=0;exitDy=0;entryX=0.5;entryY=0.0;entryDx=0;entryDy=0;dashed=1;" edge="1" parent="1" source="kb" target="search">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1905" y="432" />
+              <mxPoint x="755" y="432" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-visitor-token" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#64748b;strokeWidth=2;labelBackgroundColor=#ffffff;fontColor=#526176;fontSize=13;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="visitor" target="token">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-token-search" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#64748b;strokeWidth=2;labelBackgroundColor=#ffffff;fontColor=#526176;fontSize=13;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="token" target="search">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-search-plan" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#64748b;strokeWidth=2;labelBackgroundColor=#ffffff;fontColor=#526176;fontSize=13;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="search" target="plan">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-route-facts" value="facts" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#64748b;strokeWidth=2;labelBackgroundColor=#ffffff;fontColor=#526176;fontSize=13;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="plan" target="draft">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-route-policy" value="policy decision" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#64748b;strokeWidth=2;labelBackgroundColor=#ffffff;fontColor=#526176;fontSize=13;exitX=0.5;exitY=1.0;exitDx=0;exitDy=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="plan" target="context">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1010" y="756" />
+              <mxPoint x="585" y="756" />
+              <mxPoint x="585" y="937" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-draft-review" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#64748b;strokeWidth=2;labelBackgroundColor=#ffffff;fontColor=#526176;fontSize=13;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="draft" target="review">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-review-ground" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#64748b;strokeWidth=2;labelBackgroundColor=#ffffff;fontColor=#526176;fontSize=13;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="review" target="ground">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-facts-response" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#64748b;strokeWidth=2;labelBackgroundColor=#ffffff;fontColor=#526176;fontSize=13;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.0;entryY=0.3424657534246575;entryDx=0;entryDy=0;" edge="1" parent="1" source="ground" target="payload">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2125" y="632" />
+              <mxPoint x="2125" y="1040" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-context-ledger" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#64748b;strokeWidth=2;labelBackgroundColor=#ffffff;fontColor=#526176;fontSize=13;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="context" target="ledger">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-ledger-facts" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#64748b;strokeWidth=2;labelBackgroundColor=#ffffff;fontColor=#526176;fontSize=13;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="ledger" target="facts">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-facts-scope" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#64748b;strokeWidth=2;labelBackgroundColor=#ffffff;fontColor=#526176;fontSize=13;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="facts" target="scope">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-scope-semantic" value="semantic" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#64748b;strokeWidth=2;labelBackgroundColor=#ffffff;fontColor=#526176;fontSize=13;exitX=0.5;exitY=1.0;exitDx=0;exitDy=0;entryX=0.5;entryY=0.0;entryDx=0;entryDy=0;" edge="1" parent="1" source="scope" target="semantic">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-scope-numeric" value="numeric" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#64748b;strokeWidth=2;labelBackgroundColor=#ffffff;fontColor=#526176;fontSize=13;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0.0;entryDx=0;entryDy=0;" edge="1" parent="1" source="scope" target="numeric">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1955" y="937" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-semantic-combine" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#64748b;strokeWidth=2;labelBackgroundColor=#ffffff;fontColor=#526176;fontSize=13;exitX=0.5;exitY=1.0;exitDx=0;exitDy=0;entryX=0.0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="semantic" target="combine">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1655" y="1313" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-numeric-combine" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#64748b;strokeWidth=2;labelBackgroundColor=#ffffff;fontColor=#526176;fontSize=13;exitX=0.5;exitY=1.0;exitDx=0;exitDy=0;entryX=0.5;entryY=0.0;entryDx=0;entryDy=0;" edge="1" parent="1" source="numeric" target="combine">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-decision-response" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#64748b;strokeWidth=2;labelBackgroundColor=#ffffff;fontColor=#526176;fontSize=13;exitX=1.0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.0;entryY=0.684931506849315;entryDx=0;entryDy=0;" edge="1" parent="1" source="combine" target="payload">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2125" y="1313" />
+              <mxPoint x="2125" y="1090" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-render-response" value="render" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;endArrow=block;endFill=1;strokeColor=#64748b;strokeWidth=2;labelBackgroundColor=#ffffff;fontColor=#526176;fontSize=13;exitX=0.5;exitY=1.0;exitDx=0;exitDy=0;entryX=0.5;entryY=0.0;entryDx=0;entryDy=0;" edge="1" parent="1" source="payload" target="render">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="upload" value="&lt;div style=&quot;font-size:17px;font-weight:700;color:#14243b&quot;&gt;Upload organization PDFs&lt;/div&gt;&lt;div style=&quot;font-size:14px;font-weight:600;color:#2563eb;margin-top:7px&quot;&gt;React admin dashboard&lt;/div&gt;&lt;div style=&quot;font-size:15px;color:#526176;margin-top:9px&quot;&gt;Manage · replace · delete&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2563eb;strokeWidth=1.5;align=left;verticalAlign=middle;spacing=16;fontFamily=Helvetica;" vertex="1" parent="1" tooltip="An authenticated administrator uploads a PDF through the dashboard. Documents can be replaced, deleted, or retried after failed processing.">
+          <mxGeometry x="70" y="240" width="250" height="124" as="geometry" />
+        </mxCell>
+        <mxCell id="auth" value="&lt;div style=&quot;font-size:17px;font-weight:700;color:#14243b&quot;&gt;Authorize administrator&lt;/div&gt;&lt;div style=&quot;font-size:14px;font-weight:600;color:#2563eb;margin-top:7px&quot;&gt;Hono + Better Auth&lt;/div&gt;&lt;div style=&quot;font-size:15px;color:#526176;margin-top:9px&quot;&gt;Session + owner/admin role&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2563eb;strokeWidth=1.5;align=left;verticalAlign=middle;spacing=16;fontFamily=Helvetica;" vertex="1" parent="1" tooltip="The server resolves the signed-in organization and requires owner or admin membership. File operations are scoped by that organization, not by a visitor-supplied organization ID.">
+          <mxGeometry x="390" y="240" width="250" height="124" as="geometry" />
+        </mxCell>
+        <mxCell id="validate" value="&lt;div style=&quot;font-size:17px;font-weight:700;color:#14243b&quot;&gt;Validate and reserve upload&lt;/div&gt;&lt;div style=&quot;font-size:14px;font-weight:600;color:#2563eb;margin-top:7px&quot;&gt;Hono + pdf-lib&lt;/div&gt;&lt;div style=&quot;font-size:15px;color:#526176;margin-top:9px&quot;&gt;10 PDFs · 20 pages · 10 MB&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2563eb;strokeWidth=1.5;align=left;verticalAlign=middle;spacing=16;fontFamily=Helvetica;" vertex="1" parent="1" tooltip="The server validates bytes, filename, PDF readability, file size, page count, and the organization quota. It reserves a processing record with the original PDF bytes before extraction.">
+          <mxGeometry x="710" y="240" width="250" height="124" as="geometry" />
+        </mxCell>
+        <mxCell id="extract" value="&lt;div style=&quot;font-size:17px;font-weight:700;color:#14243b&quot;&gt;Extract each page&lt;/div&gt;&lt;div style=&quot;font-size:14px;font-weight:600;color:#2563eb;margin-top:7px&quot;&gt;Local Firecrawl AnyDoc&lt;/div&gt;&lt;div style=&quot;font-size:15px;color:#526176;margin-top:9px&quot;&gt;PDF → page Markdown&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2563eb;strokeWidth=1.5;align=left;verticalAlign=middle;spacing=16;fontFamily=Helvetica;" vertex="1" parent="1" tooltip="pdf-lib separates pages and AnyDoc extracts Markdown locally. Text-based PDFs are supported; this application does not add an OCR stage.">
+          <mxGeometry x="1030" y="240" width="250" height="124" as="geometry" />
+        </mxCell>
+        <mxCell id="chunk" value="&lt;div style=&quot;font-size:17px;font-weight:700;color:#14243b&quot;&gt;Chunk with page context&lt;/div&gt;&lt;div style=&quot;font-size:14px;font-weight:600;color:#2563eb;margin-top:7px&quot;&gt;TypeScript&lt;/div&gt;&lt;div style=&quot;font-size:15px;color:#526176;margin-top:9px&quot;&gt;1,100 chars · 130 overlap&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2563eb;strokeWidth=1.5;align=left;verticalAlign=middle;spacing=16;fontFamily=Helvetica;" vertex="1" parent="1" tooltip="The server splits page text into overlapping passages. Each chunk retains organization ID, document ID, and its original page number.">
+          <mxGeometry x="1350" y="240" width="250" height="124" as="geometry" />
+        </mxCell>
+        <mxCell id="kb" value="&lt;div style=&quot;font-size:17px;font-weight:700;color:#14243b&quot;&gt;Organization knowledge base&lt;/div&gt;&lt;div style=&quot;font-size:14px;font-weight:600;color:#0e7490;margin-top:7px&quot;&gt;SQLite + FTS5&lt;/div&gt;&lt;div style=&quot;font-size:15px;color:#526176;margin-top:9px&quot;&gt;PDFs · statuses · page passages&lt;br&gt;Atomic publish → ready&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#0e7490;strokeWidth=1.5;align=left;verticalAlign=middle;spacing=16;fontFamily=Helvetica;shape=cylinder;boundedLbl=1;backgroundOutline=1;size=18;" vertex="1" parent="1" tooltip="One local SQLite database stores all organizations. The publish transaction adds passages, updates the search index through triggers, and marks the document ready. Replacing a ready PDF removes the old version only when the new version publishes successfully.">
+          <mxGeometry x="1730" y="230" width="350" height="144" as="geometry" />
+        </mxCell>
+        <mxCell id="visitor" value="&lt;div style=&quot;font-size:17px;font-weight:700;color:#14243b&quot;&gt;Ask a question&lt;/div&gt;&lt;div style=&quot;font-size:14px;font-weight:600;color:#2563eb;margin-top:7px&quot;&gt;React chat / iframe&lt;/div&gt;&lt;div style=&quot;font-size:15px;color:#526176;margin-top:9px&quot;&gt;Organization-branded assistant&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2563eb;strokeWidth=1.5;align=left;verticalAlign=middle;spacing=16;fontFamily=Helvetica;" vertex="1" parent="1" tooltip="The assistant reads its token from the URL fragment and sends it in the request body. Chat history is displayed locally; each backend question is evaluated independently.">
+          <mxGeometry x="70" y="570" width="250" height="124" as="geometry" />
+        </mxCell>
+        <mxCell id="token" value="&lt;div style=&quot;font-size:17px;font-weight:700;color:#14243b&quot;&gt;Identify organization&lt;/div&gt;&lt;div style=&quot;font-size:14px;font-weight:600;color:#2563eb;margin-top:7px&quot;&gt;Node.js / Hono&lt;/div&gt;&lt;div style=&quot;font-size:15px;color:#526176;margin-top:9px&quot;&gt;Token lookup + rate limit&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2563eb;strokeWidth=1.5;align=left;verticalAlign=middle;spacing=16;fontFamily=Helvetica;" vertex="1" parent="1" tooltip="The API hashes and validates the assistant token to resolve the organization, then rate-limits requests for that organization. Simple greetings, thanks, and identity questions are answered directly without retrieval or a model call.">
+          <mxGeometry x="350" y="570" width="250" height="124" as="geometry" />
+        </mxCell>
+        <mxCell id="search" value="&lt;div style=&quot;font-size:17px;font-weight:700;color:#14243b&quot;&gt;Retrieve source pages&lt;/div&gt;&lt;div style=&quot;font-size:14px;font-weight:600;color:#0e7490;margin-top:7px&quot;&gt;SQLite FTS5&lt;/div&gt;&lt;div style=&quot;font-size:15px;color:#526176;margin-top:9px&quot;&gt;Org-filtered · ready PDFs only&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#0e7490;strokeWidth=1.5;align=left;verticalAlign=middle;spacing=16;fontFamily=Helvetica;" vertex="1" parent="1" tooltip="Keyword search uses English stemming, ranks matching chunks, and reconstructs up to six full pages. Both search and policy expansion use organization filters. No matches return no_answer; excessive source context returns unresolved.">
+          <mxGeometry x="630" y="570" width="250" height="124" as="geometry" />
+        </mxCell>
+        <mxCell id="plan" value="&lt;div style=&quot;font-size:17px;font-weight:700;color:#14243b&quot;&gt;Route the request&lt;/div&gt;&lt;div style=&quot;font-size:14px;font-weight:600;color:#7c3aed;margin-top:7px&quot;&gt;LLM + TypeScript guards&lt;/div&gt;&lt;div style=&quot;font-size:15px;color:#526176;margin-top:9px&quot;&gt;Information or decision&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7c3aed;strokeWidth=1.5;align=left;verticalAlign=middle;spacing=16;fontFamily=Helvetica;" vertex="1" parent="1" tooltip="The model classifies the question and selects actual evidence IDs. Application guards keep general and procedural requests factual and route clear personalized eligibility requests through policy checks. The planner does not decide eligibility.">
+          <mxGeometry x="910" y="570" width="200" height="124" as="geometry" />
+        </mxCell>
+        <mxCell id="draft" value="&lt;div style=&quot;font-size:17px;font-weight:700;color:#14243b&quot;&gt;Draft cited claims&lt;/div&gt;&lt;div style=&quot;font-size:14px;font-weight:600;color:#7c3aed;margin-top:7px&quot;&gt;Configured LLM&lt;/div&gt;&lt;div style=&quot;font-size:15px;color:#526176;margin-top:9px&quot;&gt;One part per explicit request&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7c3aed;strokeWidth=1.5;align=left;verticalAlign=middle;spacing=16;fontFamily=Helvetica;" vertex="1" parent="1" tooltip="The composer drafts claims for each question part using retrieved pages. Every claim carries a page evidence ID and candidate source quote. Unsupported parts have no claims.">
+          <mxGeometry x="1200" y="570" width="250" height="124" as="geometry" />
+        </mxCell>
+        <mxCell id="review" value="&lt;div style=&quot;font-size:17px;font-weight:700;color:#14243b&quot;&gt;Review drafted claims&lt;/div&gt;&lt;div style=&quot;font-size:14px;font-weight:600;color:#7c3aed;margin-top:7px&quot;&gt;Separate LLM call&lt;/div&gt;&lt;div style=&quot;font-size:15px;color:#526176;margin-top:9px&quot;&gt;Support · relevance · source&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7c3aed;strokeWidth=1.5;align=left;verticalAlign=middle;spacing=16;fontFamily=Helvetica;" vertex="1" parent="1" tooltip="A second call checks each candidate claim for support, relevance to the question, and relevance of its quote. It can select a corrected contiguous excerpt from the same cited page. This is another model judgment, not a proof of correctness.">
+          <mxGeometry x="1500" y="570" width="250" height="124" as="geometry" />
+        </mxCell>
+        <mxCell id="ground" value="&lt;div style=&quot;font-size:17px;font-weight:700;color:#14243b&quot;&gt;Validate source quotations&lt;/div&gt;&lt;div style=&quot;font-size:14px;font-weight:600;color:#2563eb;margin-top:7px&quot;&gt;TypeScript&lt;/div&gt;&lt;div style=&quot;font-size:15px;color:#526176;margin-top:9px&quot;&gt;Exact source · numbers · units&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2563eb;strokeWidth=1.5;align=left;verticalAlign=middle;spacing=16;fontFamily=Helvetica;" vertex="1" parent="1" tooltip="Code confirms the selected quote exists on the actual page and checks quantities with units and currencies. A numeric paraphrase falls back to the source wording only after semantic checks pass. Supported parts remain visible alongside gaps; inconclusive verification returns unresolved.">
+          <mxGeometry x="1800" y="570" width="250" height="124" as="geometry" />
+        </mxCell>
+        <mxCell id="context" value="&lt;div style=&quot;font-size:17px;font-weight:700;color:#14243b&quot;&gt;Expand policy context&lt;/div&gt;&lt;div style=&quot;font-size:14px;font-weight:600;color:#0e7490;margin-top:7px&quot;&gt;Org-scoped SQLite&lt;/div&gt;&lt;div style=&quot;font-size:15px;color:#526176;margin-top:9px&quot;&gt;Full documents + named links&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#0e7490;strokeWidth=1.5;align=left;verticalAlign=middle;spacing=16;fontFamily=Helvetica;" vertex="1" parent="1" tooltip="The server loads every page of selected policy documents and follows exact document-title cross-references within the same organization. Reading limits stop an oversized policy with unresolved instead of silently truncating it.">
+          <mxGeometry x="630" y="875" width="250" height="124" as="geometry" />
+        </mxCell>
+        <mxCell id="ledger" value="&lt;div style=&quot;font-size:17px;font-weight:700;color:#14243b&quot;&gt;Build required-rule ledger&lt;/div&gt;&lt;div style=&quot;font-size:14px;font-weight:600;color:#2563eb;margin-top:7px&quot;&gt;TypeScript&lt;/div&gt;&lt;div style=&quot;font-size:15px;color:#526176;margin-top:9px&quot;&gt;Requirements before user facts&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2563eb;strokeWidth=1.5;align=left;verticalAlign=middle;spacing=16;fontFamily=Helvetica;" vertex="1" parent="1" tooltip="English requirement and prohibition heuristics build a fixed ledger before matching visitor facts. The planner cannot remove conditions. Recognized complex structures and oversized or empty ledgers return unresolved; this is not a general-purpose policy compiler.">
+          <mxGeometry x="930" y="875" width="250" height="124" as="geometry" />
+        </mxCell>
+        <mxCell id="facts" value="&lt;div style=&quot;font-size:17px;font-weight:700;color:#14243b&quot;&gt;Match visitor facts to rules&lt;/div&gt;&lt;div style=&quot;font-size:14px;font-weight:600;color:#7c3aed;margin-top:7px&quot;&gt;Configured LLM&lt;/div&gt;&lt;div style=&quot;font-size:15px;color:#526176;margin-top:9px&quot;&gt;Exact quotes · all rule IDs&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#7c3aed;strokeWidth=1.5;align=left;verticalAlign=middle;spacing=16;fontFamily=Helvetica;" vertex="1" parent="1" tooltip="The schema requires every ledger ID. The model copies exact contiguous visitor excerpts and preserves quantities and units. Missing facts stay missing. A bounded numeric correction can select only numbered excerpts from the real question.">
+          <mxGeometry x="1230" y="875" width="250" height="124" as="geometry" />
+        </mxCell>
+        <mxCell id="scope" value="&lt;div style=&quot;font-size:17px;font-weight:700;color:#14243b&quot;&gt;Check rule applicability&lt;/div&gt;&lt;div style=&quot;font-size:14px;font-weight:600;color:#b45309;margin-top:7px&quot;&gt;Local Laya: System 1&lt;/div&gt;&lt;div style=&quot;font-size:15px;color:#526176;margin-top:9px&quot;&gt;Choice + Boolean confirmation&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b45309;strokeWidth=1.5;align=left;verticalAlign=middle;spacing=16;fontFamily=Helvetica;" vertex="1" parent="1" tooltip="Laya Choice classifies whether the source rule category applies. A Boolean applicability check corroborates exclusions. Excluded rules stay in the decision trace; uncertain applicability cannot approve a request. Laya calls are batched and serialized by the adapter.">
+          <mxGeometry x="1530" y="875" width="250" height="124" as="geometry" />
+        </mxCell>
+        <mxCell id="semantic" value="&lt;div style=&quot;font-size:17px;font-weight:700;color:#14243b&quot;&gt;Evaluate semantic conditions&lt;/div&gt;&lt;div style=&quot;font-size:14px;font-weight:600;color:#b45309;margin-top:7px&quot;&gt;Local Laya: Boolean / Noul&lt;/div&gt;&lt;div style=&quot;font-size:15px;color:#526176;margin-top:9px&quot;&gt;Fact coverage · comply · violate&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#b45309;strokeWidth=1.5;align=left;verticalAlign=middle;spacing=16;fontFamily=Helvetica;" vertex="1" parent="1" tooltip="Boolean checks assess whether the fact addresses the rule, establishes compliance, or establishes an explicit violation. Lack of evidence is not a violation. Conflicting or inconclusive outcomes remain uncertain; scores are thresholds, not calibrated correctness probabilities.">
+          <mxGeometry x="1530" y="1085" width="250" height="124" as="geometry" />
+        </mxCell>
+        <mxCell id="numeric" value="&lt;div style=&quot;font-size:17px;font-weight:700;color:#14243b&quot;&gt;Evaluate numeric conditions&lt;/div&gt;&lt;div style=&quot;font-size:14px;font-weight:600;color:#2563eb;margin-top:7px&quot;&gt;TypeScript rule evaluator&lt;/div&gt;&lt;div style=&quot;font-size:15px;color:#526176;margin-top:9px&quot;&gt;Boundaries · quantities · units&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2563eb;strokeWidth=1.5;align=left;verticalAlign=middle;spacing=16;fontFamily=Helvetica;" vertex="1" parent="1" tooltip="Code evaluates supported numeric thresholds, ranges, allowed values, and compatible units or scales. The visitor value must address the rule subject; unsafe interpretation stays uncertain. There are no hardcoded organization-specific policy cases.">
+          <mxGeometry x="1830" y="1085" width="250" height="124" as="geometry" />
+        </mxCell>
+        <mxCell id="combine" value="&lt;div style=&quot;font-size:17px;font-weight:700;color:#14243b&quot;&gt;Combine results + explain&lt;/div&gt;&lt;div style=&quot;font-size:14px;font-weight:600;color:#2563eb;margin-top:7px&quot;&gt;TypeScript verdict → LLM&lt;/div&gt;&lt;div style=&quot;font-size:15px;color:#526176;margin-top:9px&quot;&gt;Failure wins · all must pass&lt;br&gt;Missing → ask · unsure → review&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2563eb;strokeWidth=1.5;align=left;verticalAlign=middle;spacing=16;fontFamily=Helvetica;" vertex="1" parent="1" tooltip="Code rejects when any applicable condition fails, asks for missing facts when no failure is established, and approves only when applicable checks exist and all pass. Otherwise it returns unresolved. The composer receives the computed verdict and checks; decision text retains verified policy excerpts, and code keeps the verdict authoritative.">
+          <mxGeometry x="1830" y="1250" width="250" height="126" as="geometry" />
+        </mxCell>
+        <mxCell id="payload" value="&lt;div style=&quot;font-size:17px;font-weight:700;color:#14243b&quot;&gt;Return response JSON&lt;/div&gt;&lt;div style=&quot;font-size:14px;font-weight:600;color:#047857;margin-top:7px&quot;&gt;Hono + shared contracts&lt;/div&gt;&lt;div style=&quot;font-size:15px;color:#526176;margin-top:9px&quot;&gt;status + text + references&lt;br&gt;Calculated checks when available&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#047857;strokeWidth=1.5;align=left;verticalAlign=middle;spacing=16;fontFamily=Helvetica;" vertex="1" parent="1" tooltip="The API returns one of answered, needs_clarification, unresolved, no_answer, or acknowledged. Calculated decisions can include the verdict and check trace. Transport or provider failures remain errors; they are not disguised as successful answers.">
+          <mxGeometry x="2165" y="990" width="330" height="146" as="geometry" />
+        </mxCell>
+        <mxCell id="render" value="&lt;div style=&quot;font-size:17px;font-weight:700;color:#14243b&quot;&gt;Display evidence and outcome&lt;/div&gt;&lt;div style=&quot;font-size:14px;font-weight:600;color:#047857;margin-top:7px&quot;&gt;React + json-render + Zod&lt;/div&gt;&lt;div style=&quot;font-size:15px;color:#526176;margin-top:9px&quot;&gt;Fixed cards · citations · trace&lt;/div&gt;" style="rounded=1;arcSize=10;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#047857;strokeWidth=1.5;align=left;verticalAlign=middle;spacing=16;fontFamily=Helvetica;" vertex="1" parent="1" tooltip="The client maps verified API data into a small read-only json-render catalog. Zod validates props and a direct fallback preserves the response if validation fails. Citation links reveal page excerpts without replacing the token fragment. The model does not generate UI layout.">
+          <mxGeometry x="2165" y="1250" width="330" height="126" as="geometry" />
+        </mxCell>
+        <mxCell id="note-0" value="&lt;b&gt;Document lifecycle&lt;/b&gt;&lt;br&gt;&lt;br&gt;processing → ready or failed&lt;br&gt;Only ready PDFs are searched.&lt;br&gt;Failed uploads can be retried.&lt;br&gt;Failed replacements keep the original." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontSize=16;fontColor=#66778d;" vertex="1" parent="1">
+          <mxGeometry x="2130" y="225" width="350" height="145" as="geometry" />
+        </mxCell>
+        <mxCell id="note-1" value="&lt;b&gt;TENANT BOUNDARY&lt;/b&gt;&lt;br&gt;&lt;br&gt;One SQLite database; every document read&lt;br&gt;and write is scoped by organization ID.&lt;br&gt;Admin session ≠ public assistant token." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontSize=16;fontColor=#66778d;" vertex="1" parent="1">
+          <mxGeometry x="70" y="850" width="460" height="145" as="geometry" />
+        </mxCell>
+        <mxCell id="note-2" value="&lt;b&gt;ONE GENERATION PROVIDER&lt;/b&gt;&lt;br&gt;&lt;br&gt;Ollama (local), Gemini, or OpenRouter&lt;br&gt;Planning · drafting · review · fact matching&lt;br&gt;Selected in .env; no automatic fallback." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontSize=16;fontColor=#66778d;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1045" width="460" height="145" as="geometry" />
+        </mxCell>
+        <mxCell id="note-3" value="&lt;b&gt;SAFE EARLY RETURNS&lt;/b&gt;&lt;br&gt;&lt;br&gt;Greeting / thanks / identity → direct reply&lt;br&gt;No retrieved pages → no_answer&lt;br&gt;Unsafe context / policy → unresolved" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontSize=16;fontColor=#66778d;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1240" width="460" height="145" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-0" value="&lt;b&gt;ANSWERED&lt;/b&gt;&lt;br&gt;&lt;br&gt;Supported claims / computed verdict" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=15;fontColor=#047857;" vertex="1" parent="1">
+          <mxGeometry x="70" y="1450" width="475" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-1" value="&lt;b&gt;CLARIFICATION&lt;/b&gt;&lt;br&gt;&lt;br&gt;Missing facts; no established failure" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=15;fontColor=#b45309;" vertex="1" parent="1">
+          <mxGeometry x="570" y="1450" width="475" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-2" value="&lt;b&gt;UNRESOLVED&lt;/b&gt;&lt;br&gt;&lt;br&gt;Uncertain checks / unsupported policy" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=15;fontColor=#b45309;" vertex="1" parent="1">
+          <mxGeometry x="1070" y="1450" width="475" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-3" value="&lt;b&gt;NO ANSWER&lt;/b&gt;&lt;br&gt;&lt;br&gt;No supported source claims" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=15;fontColor=#64748b;" vertex="1" parent="1">
+          <mxGeometry x="1570" y="1450" width="475" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-4" value="&lt;b&gt;ACKNOWLEDGED&lt;/b&gt;&lt;br&gt;&lt;br&gt;Simple greeting / thanks / identity" style="text;html=1;strokeColor=none;fillColor=none;align=left;fontSize=15;fontColor=#2563eb;" vertex="1" parent="1">
+          <mxGeometry x="2070" y="1450" width="475" height="85" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

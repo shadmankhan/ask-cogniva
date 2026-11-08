@@ -35,11 +35,20 @@ test("computed verdicts and individual checks retain their meaning without inven
     const html = render({ ...base, decision: { verdict, checks: [
       { label: "Requested duration", method: "Rule", result: "Fail" },
       { label: "Policy category", method: "Choice", result: "applies", score: 0.81 },
+      { label: "Required information", method: "Boolean (Noul)", result: "Missing" },
     ] } });
     assert.ok(html.includes(verdict));
     assert.match(html, /Requested duration/);
     assert.match(html, /data-result="Fail"/);
-    assert.match(html, /model output 0.81/);
+    assert.match(html, /Result:/);
+    assert.match(html, /Does not meet policy/);
+    assert.match(html, /Method:/);
+    assert.match(html, /Numeric comparison/);
+    assert.match(html, /Category selection \(Choice\)/);
+    assert.match(html, /Condition check \(Boolean \/ Noul\)/);
+    assert.match(html, /More details needed/);
+    assert.match(html, /Model output:/);
+    assert.match(html, /0\.81/);
     assert.doesNotMatch(html, /81%/);
     if (verdict === "Conditions not met") assert.match(html, /data-tone="negative"/);
   }

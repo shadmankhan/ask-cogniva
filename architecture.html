@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cogniva · Master architecture</title>
+<style>
+:root{font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#182b46;background:#eef2f7}*{box-sizing:border-box}body{margin:0;height:100dvh;display:flex;flex-direction:column}header{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:16px 24px;background:#fff;border-bottom:1px solid #dce3ee;flex-wrap:wrap}.brand{display:flex;align-items:center;gap:12px}.mark{display:grid;place-items:center;background:#172b4d;color:#fff;width:38px;height:38px;border-radius:11px;font-size:24px;font-weight:700}h1{margin:0;font-size:17px;letter-spacing:-.2px}.muted{font-size:12px;color:#64748b}.tools,.filters{display:flex;align-items:center;gap:6px;flex-wrap:wrap}button,.download{font:inherit;background:#fff;border:1px solid #d5deeb;border-radius:7px;padding:7px 11px;color:#243651;text-decoration:none;cursor:pointer}button:hover,.download:hover{background:#f1f5fb}button:focus-visible,a:focus-visible{outline:3px solid #2563eb;outline-offset:3px}.filters{padding:10px 24px;background:#f8fafc;border-bottom:1px solid #dce3ee}.filters button{padding:5px 12px;font-size:12px}.filters button[aria-pressed=true]{background:#172b4d;color:#fff;border-color:#172b4d}.hint{margin-left:auto;color:#64748b;font-size:12px}main{flex:1;min-height:180px;padding:12px;display:flex;flex-direction:column}.viewport{position:relative;overflow:hidden;flex:1;border:1px solid #dce3ee;border-radius:12px;background:#fff;touch-action:none;cursor:grab}.viewport.dragging{cursor:grabbing}.board{width:2560px;height:1560px;position:absolute;transform-origin:0 0;will-change:transform}.board svg{display:block}.board .node{cursor:pointer}.board .node:focus{outline:none}.board .node:focus .node-title{text-decoration:underline}.board .node:focus rect{stroke:#2563eb;stroke-width:3}.board[data-mode=ingest] .flow-item:not([data-flow=ingest]):not([data-flow=shared]),.board[data-mode=factual] .flow-item:not([data-flow=factual]):not([data-flow=shared]),.board[data-mode=decision] .flow-item:not([data-flow=decision]):not([data-flow=shared]){opacity:.16}footer{display:flex;justify-content:space-between;gap:16px;padding:0 24px 12px;color:#64748b;font-size:12px}dialog{width:min(660px,calc(100vw - 32px));border:1px solid #cbd5e1;border-radius:16px;padding:28px;box-shadow:0 24px 90px #172b4d40;color:#182b46}dialog::backdrop{background:#14243b40}dialog h2{margin:0 40px 6px 0;font-size:22px}dialog p{font-size:15px;line-height:1.7;color:#526176}dialog .close{position:absolute;right:18px;top:18px}dialog code{display:inline-block;font-size:12px;background:#eff3f9;padding:3px 7px;border-radius:5px;margin:4px 5px 0 0}.files-label{margin-top:18px;font-size:12px;font-weight:650;color:#64748b}#zoom{min-width:45px;text-align:center;font-variant-numeric:tabular-nums}@media(max-width:700px){header{padding:12px;gap:10px}.filters{padding:8px 12px}.hint{display:none}.tools{gap:4px}.tools button,.download{padding:6px 9px;font-size:12px}footer{padding:0 12px 8px}.muted{font-size:11px}main{padding:6px}}@media print{@page{size:A3 landscape;margin:8mm}body{height:auto;background:#fff}header,.filters,footer,dialog{display:none!important}main{display:block;padding:0}.viewport{overflow:visible;border:0}.board{position:static;width:100%;height:auto;transform:none!important}.board svg{width:100%;height:auto}.board .flow-item{opacity:1!important}}
+</style>
+</head>
+<body>
+<header><div class="brand"><span class="mark" aria-hidden="true">C</span><div><h1>Cogniva · Master architecture</h1><div class="muted">Follow the process. Select any step for its implementation.</div></div></div><nav class="tools" aria-label="Diagram controls"><button type="button" id="fit">Fit</button><button type="button" id="out" aria-label="Zoom out">−</button><output id="zoom" aria-live="polite">100%</output><button type="button" id="in" aria-label="Zoom in">+</button><button type="button" id="fullscreen">Fullscreen</button><a class="download" href="docs/images/architecture.svg" download>SVG</a><a class="download" href="docs/architecture.drawio" download>Edit in draw.io</a></nav></header>
+<div class="filters" role="group" aria-label="Highlight a process"><button data-mode="all" aria-pressed="true">Complete flow</button><button data-mode="ingest" aria-pressed="false">PDF ingestion</button><button data-mode="factual" aria-pressed="false">Information answer</button><button data-mode="decision" aria-pressed="false">Policy decision</button><span class="hint">Scroll to zoom · drag to pan · + / − / 0 to zoom or fit</span></div>
+<main><div class="viewport" id="viewport" role="region" aria-label="Zoomable architecture diagram" tabindex="0"><div class="board" id="board" data-mode="all"><svg xmlns="http://www.w3.org/2000/svg" width="2560" height="1560" viewBox="0 0 2560 1560" role="img" aria-labelledby="diagram-title diagram-desc">
+<title id="diagram-title">Cogniva — master architecture and request lifecycle</title>
+<desc id="diagram-desc">Connected process diagram showing administrator PDF ingestion, organization-scoped retrieval, factual verification, policy rule evaluation using Laya and TypeScript, and the response rendered with json-render.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke"/></marker></defs>
+ <style>text{font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif} .node-title{font-size:19px;font-weight:650;fill:#14243b}.node-tech{font-size:14px;font-weight:600}.node-line{font-size:15px;fill:#526176}.edge-label{font-size:14px;fill:#526176;font-weight:550}.flow-item{transition:opacity .18s}.node rect{transition:stroke-width .15s}.node:hover rect{stroke-width:2}.label-bg{fill:#fff;stroke:#e5eaf2;stroke-width:1}</style>
+<rect width="2560" height="1560" fill="#ffffff"/>
+<rect x="48" y="38" width="52" height="52" rx="15" fill="#172b4d"/><text x="74" y="73" fill="#fff" font-size="30" text-anchor="middle" font-weight="700">C</text>
+<text x="120" y="65" font-size="31" font-weight="750" fill="#14243b">Cogniva</text>
+<text x="120" y="95" font-size="18" fill="#526176">Master architecture · follow the data from PDF to supported answer</text>
+<text x="2505" y="60" text-anchor="end" font-size="15" font-weight="650" fill="#526176">LOCAL APPLICATION · ORGANIZATION-SCOPED KNOWLEDGE</text>
+<text x="2505" y="87" text-anchor="end" font-size="15" fill="#738198">Solid arrows = request flow · dashed arrow = stored evidence</text>
+<g><rect x="40" y="145" width="2480" height="260" rx="18" fill="#f5f8ff" stroke="#e0e6ef"/>
+<rect x="64" y="168" width="35" height="28" rx="8" fill="#2563eb"/><text x="81.5" y="188" text-anchor="middle" font-size="14" fill="#fff" font-weight="700">01</text>
+<text x="112" y="188" font-size="17" font-weight="700" fill="#243651">PREPARE ORGANIZATION KNOWLEDGE</text>
+<text x="64" y="220" font-size="15" fill="#66778d">Admin-only upload · validation · local extraction · atomic indexing</text></g>
+<g><rect x="40" y="470" width="1100" height="265" rx="18" fill="#f3fafb" stroke="#e0e6ef"/>
+<rect x="64" y="493" width="35" height="28" rx="8" fill="#0e7490"/><text x="81.5" y="513" text-anchor="middle" font-size="14" fill="#fff" font-weight="700">02</text>
+<text x="112" y="513" font-size="17" font-weight="700" fill="#243651">IDENTIFY AND RETRIEVE</text>
+<text x="64" y="545" font-size="15" fill="#66778d">Assistant token → organization → its ready source pages</text></g>
+<g><rect x="1170" y="470" width="1350" height="265" rx="18" fill="#faf7ff" stroke="#e0e6ef"/>
+<rect x="1194" y="493" width="35" height="28" rx="8" fill="#7c3aed"/><text x="1211.5" y="513" text-anchor="middle" font-size="14" fill="#fff" font-weight="700">03</text>
+<text x="1242" y="513" font-size="17" font-weight="700" fill="#243651">ANSWER INFORMATION QUESTIONS</text>
+<text x="1194" y="545" font-size="15" fill="#66778d">Draft → separate review → deterministic source checks</text></g>
+<g><rect x="600" y="790" width="1510" height="610" rx="18" fill="#fffcf4" stroke="#e0e6ef"/>
+<rect x="624" y="813" width="35" height="28" rx="8" fill="#b45309"/><text x="641.5" y="833" text-anchor="middle" font-size="14" fill="#fff" font-weight="700">04</text>
+<text x="672" y="833" font-size="17" font-weight="700" fill="#243651">EVALUATE A PERSONALIZED POLICY REQUEST</text>
+<text x="624" y="865" font-size="15" fill="#66778d">Source requirements → visitor facts → typed checks → code-owned verdict</text></g>
+<g><rect x="2140" y="790" width="380" height="610" rx="18" fill="#f2fbf7" stroke="#e0e6ef"/>
+<rect x="2164" y="813" width="35" height="28" rx="8" fill="#047857"/><text x="2181.5" y="833" text-anchor="middle" font-size="14" fill="#fff" font-weight="700">05</text>
+<text x="2212" y="833" font-size="16" font-weight="700" fill="#243651">RETURN AND DISPLAY</text>
+<text x="2164" y="865" font-size="15" fill="#66778d">Verified data → fixed UI</text></g>
+<g class="flow-item" data-flow="ingest"><polyline id="upload-auth" points="320,302 390,302" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linejoin="round" marker-end="url(#arrow)"/></g>
+<g class="flow-item" data-flow="ingest"><polyline id="auth-validate" points="640,302 710,302" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linejoin="round" marker-end="url(#arrow)"/></g>
+<g class="flow-item" data-flow="ingest"><polyline id="validate-extract" points="960,302 1030,302" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linejoin="round" marker-end="url(#arrow)"/></g>
+<g class="flow-item" data-flow="ingest"><polyline id="extract-chunk" points="1280,302 1350,302" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linejoin="round" marker-end="url(#arrow)"/></g>
+<g class="flow-item" data-flow="ingest"><polyline id="publish" points="1600,302 1730,302" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linejoin="round" marker-end="url(#arrow)"/></g>
+<g class="flow-item" data-flow="shared"><polyline id="read" points="1905,374 1905,432 755,432 755,570" fill="none" stroke="#0e7490" stroke-width="2.1" stroke-linejoin="round" stroke-dasharray="7 6" marker-end="url(#arrow)"/></g>
+<g class="flow-item" data-flow="shared"><polyline id="visitor-token" points="320,632 350,632" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linejoin="round" marker-end="url(#arrow)"/></g>
+<g class="flow-item" data-flow="shared"><polyline id="token-search" points="600,632 630,632" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linejoin="round" marker-end="url(#arrow)"/></g>
+<g class="flow-item" data-flow="shared"><polyline id="search-plan" points="880,632 910,632" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linejoin="round" marker-end="url(#arrow)"/></g>
+<g class="flow-item" data-flow="factual"><polyline id="route-facts" points="1110,632 1200,632" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linejoin="round" marker-end="url(#arrow)"/></g>
+<g class="flow-item" data-flow="decision"><polyline id="route-policy" points="1010,694 1010,756 585,756 585,937 630,937" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linejoin="round" marker-end="url(#arrow)"/></g>
+<g class="flow-item" data-flow="factual"><polyline id="draft-review" points="1450,632 1500,632" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linejoin="round" marker-end="url(#arrow)"/></g>
+<g class="flow-item" data-flow="factual"><polyline id="review-ground" points="1750,632 1800,632" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linejoin="round" marker-end="url(#arrow)"/></g>
+<g class="flow-item" data-flow="factual"><polyline id="facts-response" points="2050,632 2125,632 2125,1040 2165,1040" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linejoin="round" marker-end="url(#arrow)"/></g>
+<g class="flow-item" data-flow="decision"><polyline id="context-ledger" points="880,937 930,937" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linejoin="round" marker-end="url(#arrow)"/></g>
+<g class="flow-item" data-flow="decision"><polyline id="ledger-facts" points="1180,937 1230,937" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linejoin="round" marker-end="url(#arrow)"/></g>
+<g class="flow-item" data-flow="decision"><polyline id="facts-scope" points="1480,937 1530,937" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linejoin="round" marker-end="url(#arrow)"/></g>
+<g class="flow-item" data-flow="decision"><polyline id="scope-semantic" points="1655,999 1655,1085" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linejoin="round" marker-end="url(#arrow)"/></g>
+<g class="flow-item" data-flow="decision"><polyline id="scope-numeric" points="1780,937 1955,937 1955,1085" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linejoin="round" marker-end="url(#arrow)"/></g>
+<g class="flow-item" data-flow="decision"><polyline id="semantic-combine" points="1655,1209 1655,1313 1830,1313" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linejoin="round" marker-end="url(#arrow)"/></g>
+<g class="flow-item" data-flow="decision"><polyline id="numeric-combine" points="1955,1209 1955,1250" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linejoin="round" marker-end="url(#arrow)"/></g>
+<g class="flow-item" data-flow="decision"><polyline id="decision-response" points="2080,1313 2125,1313 2125,1090 2165,1090" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linejoin="round" marker-end="url(#arrow)"/></g>
+<g class="flow-item" data-flow="shared"><polyline id="render-response" points="2330,1136 2330,1250" fill="none" stroke="#64748b" stroke-width="2.1" stroke-linejoin="round" marker-end="url(#arrow)"/></g>
+<g class="node flow-item" data-node="upload" data-flow="ingest"><title>Upload organization PDFs — An authenticated administrator uploads a PDF through the dashboard. Documents can be replaced, deleted, or retried after failed processing.</title>
+<rect x="70" y="240" width="250" height="124" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="1.25"/><rect x="70" y="256" width="4" height="92" rx="2" fill="#2563eb"/>
+<text x="88" y="270" class="node-title" style="font-size:17px">Upload organization PDFs</text>
+<text x="88" y="295" class="node-tech" fill="#2563eb">React admin dashboard</text>
+<text x="88" y="321" class="node-line">Manage · replace · delete</text>
+</g>
+<g class="node flow-item" data-node="auth" data-flow="ingest"><title>Authorize administrator — The server resolves the signed-in organization and requires owner or admin membership. File operations are scoped by that organization, not by a visitor-supplied organization ID.</title>
+<rect x="390" y="240" width="250" height="124" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="1.25"/><rect x="390" y="256" width="4" height="92" rx="2" fill="#2563eb"/>
+<text x="408" y="270" class="node-title" style="font-size:17px">Authorize administrator</text>
+<text x="408" y="295" class="node-tech" fill="#2563eb">Hono + Better Auth</text>
+<text x="408" y="321" class="node-line">Session + owner/admin role</text>
+</g>
+<g class="node flow-item" data-node="validate" data-flow="ingest"><title>Validate and reserve upload — The server validates bytes, filename, PDF readability, file size, page count, and the organization quota. It reserves a processing record with the original PDF bytes before extraction.</title>
+<rect x="710" y="240" width="250" height="124" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="1.25"/><rect x="710" y="256" width="4" height="92" rx="2" fill="#2563eb"/>
+<text x="728" y="270" class="node-title" style="font-size:17px">Validate and reserve upload</text>
+<text x="728" y="295" class="node-tech" fill="#2563eb">Hono + pdf-lib</text>
+<text x="728" y="321" class="node-line">10 PDFs · 20 pages · 10 MB</text>
+</g>
+<g class="node flow-item" data-node="extract" data-flow="ingest"><title>Extract each page — pdf-lib separates pages and AnyDoc extracts Markdown locally. Text-based PDFs are supported; this application does not add an OCR stage.</title>
+<rect x="1030" y="240" width="250" height="124" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="1.25"/><rect x="1030" y="256" width="4" height="92" rx="2" fill="#2563eb"/>
+<text x="1048" y="270" class="node-title" style="font-size:17px">Extract each page</text>
+<text x="1048" y="295" class="node-tech" fill="#2563eb">Local Firecrawl AnyDoc</text>
+<text x="1048" y="321" class="node-line">PDF → page Markdown</text>
+</g>
+<g class="node flow-item" data-node="chunk" data-flow="ingest"><title>Chunk with page context — The server splits page text into overlapping passages. Each chunk retains organization ID, document ID, and its original page number.</title>
+<rect x="1350" y="240" width="250" height="124" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="1.25"/><rect x="1350" y="256" width="4" height="92" rx="2" fill="#2563eb"/>
+<text x="1368" y="270" class="node-title" style="font-size:17px">Chunk with page context</text>
+<text x="1368" y="295" class="node-tech" fill="#2563eb">TypeScript</text>
+<text x="1368" y="321" class="node-line">1,100 chars · 130 overlap</text>
+</g>
+<g class="node flow-item" data-node="kb" data-flow="shared"><title>Organization knowledge base — One local SQLite database stores all organizations. The publish transaction adds passages, updates the search index through triggers, and marks the document ready. Replacing a ready PDF removes the old version only when the new version publishes successfully.</title>
+<path d="M 1730 250 C 1730 225 2080 225 2080 250 L 2080 354 C 2080 379 1730 379 1730 354 Z" fill="#fff" stroke="#0e7490" stroke-width="1.5"/><path d="M 1730 250 C 1730 276 2080 276 2080 250" fill="none" stroke="#0e7490" stroke-width="1.5"/>
+<text x="1748" y="293" class="node-title" style="font-size:19px">Organization knowledge base</text>
+<text x="1748" y="318" class="node-tech" fill="#0e7490">SQLite + FTS5</text>
+<text x="1748" y="344" class="node-line">PDFs · statuses · page passages</text>
+<text x="1748" y="365" class="node-line">Atomic publish → ready</text>
+</g>
+<g class="node flow-item" data-node="visitor" data-flow="shared"><title>Ask a question — The assistant reads its token from the URL fragment and sends it in the request body. Chat history is displayed locally; each backend question is evaluated independently.</title>
+<rect x="70" y="570" width="250" height="124" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="1.25"/><rect x="70" y="586" width="4" height="92" rx="2" fill="#2563eb"/>
+<text x="88" y="600" class="node-title" style="font-size:17px">Ask a question</text>
+<text x="88" y="625" class="node-tech" fill="#2563eb">React chat / iframe</text>
+<text x="88" y="651" class="node-line">Organization-branded assistant</text>
+</g>
+<g class="node flow-item" data-node="token" data-flow="shared"><title>Identify organization — The API hashes and validates the assistant token to resolve the organization, then rate-limits requests for that organization. Simple greetings, thanks, and identity questions are answered directly without retrieval or a model call.</title>
+<rect x="350" y="570" width="250" height="124" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="1.25"/><rect x="350" y="586" width="4" height="92" rx="2" fill="#2563eb"/>
+<text x="368" y="600" class="node-title" style="font-size:17px">Identify organization</text>
+<text x="368" y="625" class="node-tech" fill="#2563eb">Node.js / Hono</text>
+<text x="368" y="651" class="node-line">Token lookup + rate limit</text>
+</g>
+<g class="node flow-item" data-node="search" data-flow="shared"><title>Retrieve source pages — Keyword search uses English stemming, ranks matching chunks, and reconstructs up to six full pages. Both search and policy expansion use organization filters. No matches return no_answer; excessive source context returns unresolved.</title>
+<rect x="630" y="570" width="250" height="124" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="1.25"/><rect x="630" y="586" width="4" height="92" rx="2" fill="#0e7490"/>
+<text x="648" y="600" class="node-title" style="font-size:17px">Retrieve source pages</text>
+<text x="648" y="625" class="node-tech" fill="#0e7490">SQLite FTS5</text>
+<text x="648" y="651" class="node-line">Org-filtered · ready PDFs only</text>
+</g>
+<g class="node flow-item" data-node="plan" data-flow="shared"><title>Route the request — The model classifies the question and selects actual evidence IDs. Application guards keep general and procedural requests factual and route clear personalized eligibility requests through policy checks. The planner does not decide eligibility.</title>
+<rect x="910" y="570" width="200" height="124" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="1.25"/><rect x="910" y="586" width="4" height="92" rx="2" fill="#7c3aed"/>
+<text x="928" y="600" class="node-title" style="font-size:17px">Route the request</text>
+<text x="928" y="625" class="node-tech" fill="#7c3aed">LLM + TypeScript guards</text>
+<text x="928" y="651" class="node-line">Information or decision</text>
+</g>
+<g class="node flow-item" data-node="draft" data-flow="factual"><title>Draft cited claims — The composer drafts claims for each question part using retrieved pages. Every claim carries a page evidence ID and candidate source quote. Unsupported parts have no claims.</title>
+<rect x="1200" y="570" width="250" height="124" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="1.25"/><rect x="1200" y="586" width="4" height="92" rx="2" fill="#7c3aed"/>
+<text x="1218" y="600" class="node-title" style="font-size:17px">Draft cited claims</text>
+<text x="1218" y="625" class="node-tech" fill="#7c3aed">Configured LLM</text>
+<text x="1218" y="651" class="node-line">One part per explicit request</text>
+</g>
+<g class="node flow-item" data-node="review" data-flow="factual"><title>Review drafted claims — A second call checks each candidate claim for support, relevance to the question, and relevance of its quote. It can select a corrected contiguous excerpt from the same cited page. This is another model judgment, not a proof of correctness.</title>
+<rect x="1500" y="570" width="250" height="124" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="1.25"/><rect x="1500" y="586" width="4" height="92" rx="2" fill="#7c3aed"/>
+<text x="1518" y="600" class="node-title" style="font-size:17px">Review drafted claims</text>
+<text x="1518" y="625" class="node-tech" fill="#7c3aed">Separate LLM call</text>
+<text x="1518" y="651" class="node-line">Support · relevance · source</text>
+</g>
+<g class="node flow-item" data-node="ground" data-flow="factual"><title>Validate source quotations — Code confirms the selected quote exists on the actual page and checks quantities with units and currencies. A numeric paraphrase falls back to the source wording only after semantic checks pass. Supported parts remain visible alongside gaps; inconclusive verification returns unresolved.</title>
+<rect x="1800" y="570" width="250" height="124" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="1.25"/><rect x="1800" y="586" width="4" height="92" rx="2" fill="#2563eb"/>
+<text x="1818" y="600" class="node-title" style="font-size:17px">Validate source quotations</text>
+<text x="1818" y="625" class="node-tech" fill="#2563eb">TypeScript</text>
+<text x="1818" y="651" class="node-line">Exact source · numbers · units</text>
+</g>
+<g class="node flow-item" data-node="context" data-flow="decision"><title>Expand policy context — The server loads every page of selected policy documents and follows exact document-title cross-references within the same organization. Reading limits stop an oversized policy with unresolved instead of silently truncating it.</title>
+<rect x="630" y="875" width="250" height="124" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="1.25"/><rect x="630" y="891" width="4" height="92" rx="2" fill="#0e7490"/>
+<text x="648" y="905" class="node-title" style="font-size:17px">Expand policy context</text>
+<text x="648" y="930" class="node-tech" fill="#0e7490">Org-scoped SQLite</text>
+<text x="648" y="956" class="node-line">Full documents + named links</text>
+</g>
+<g class="node flow-item" data-node="ledger" data-flow="decision"><title>Build required-rule ledger — English requirement and prohibition heuristics build a fixed ledger before matching visitor facts. The planner cannot remove conditions. Recognized complex structures and oversized or empty ledgers return unresolved; this is not a general-purpose policy compiler.</title>
+<rect x="930" y="875" width="250" height="124" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="1.25"/><rect x="930" y="891" width="4" height="92" rx="2" fill="#2563eb"/>
+<text x="948" y="905" class="node-title" style="font-size:17px">Build required-rule ledger</text>
+<text x="948" y="930" class="node-tech" fill="#2563eb">TypeScript</text>
+<text x="948" y="956" class="node-line">Requirements before user facts</text>
+</g>
+<g class="node flow-item" data-node="facts" data-flow="decision"><title>Match visitor facts to rules — The schema requires every ledger ID. The model copies exact contiguous visitor excerpts and preserves quantities and units. Missing facts stay missing. A bounded numeric correction can select only numbered excerpts from the real question.</title>
+<rect x="1230" y="875" width="250" height="124" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="1.25"/><rect x="1230" y="891" width="4" height="92" rx="2" fill="#7c3aed"/>
+<text x="1248" y="905" class="node-title" style="font-size:17px">Match visitor facts to rules</text>
+<text x="1248" y="930" class="node-tech" fill="#7c3aed">Configured LLM</text>
+<text x="1248" y="956" class="node-line">Exact quotes · all rule IDs</text>
+</g>
+<g class="node flow-item" data-node="scope" data-flow="decision"><title>Check rule applicability — Laya Choice classifies whether the source rule category applies. A Boolean applicability check corroborates exclusions. Excluded rules stay in the decision trace; uncertain applicability cannot approve a request. Laya calls are batched and serialized by the adapter.</title>
+<rect x="1530" y="875" width="250" height="124" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="1.25"/><rect x="1530" y="891" width="4" height="92" rx="2" fill="#b45309"/>
+<text x="1548" y="905" class="node-title" style="font-size:17px">Check rule applicability</text>
+<text x="1548" y="930" class="node-tech" fill="#b45309">Local Laya: System 1</text>
+<text x="1548" y="956" class="node-line">Choice + Boolean confirmation</text>
+</g>
+<g class="node flow-item" data-node="semantic" data-flow="decision"><title>Evaluate semantic conditions — Boolean checks assess whether the fact addresses the rule, establishes compliance, or establishes an explicit violation. Lack of evidence is not a violation. Conflicting or inconclusive outcomes remain uncertain; scores are thresholds, not calibrated correctness probabilities.</title>
+<rect x="1530" y="1085" width="250" height="124" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="1.25"/><rect x="1530" y="1101" width="4" height="92" rx="2" fill="#b45309"/>
+<text x="1548" y="1115" class="node-title" style="font-size:17px">Evaluate semantic conditions</text>
+<text x="1548" y="1140" class="node-tech" fill="#b45309">Local Laya: Boolean / Noul</text>
+<text x="1548" y="1166" class="node-line">Fact coverage · comply · violate</text>
+</g>
+<g class="node flow-item" data-node="numeric" data-flow="decision"><title>Evaluate numeric conditions — Code evaluates supported numeric thresholds, ranges, allowed values, and compatible units or scales. The visitor value must address the rule subject; unsafe interpretation stays uncertain. There are no hardcoded organization-specific policy cases.</title>
+<rect x="1830" y="1085" width="250" height="124" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="1.25"/><rect x="1830" y="1101" width="4" height="92" rx="2" fill="#2563eb"/>
+<text x="1848" y="1115" class="node-title" style="font-size:17px">Evaluate numeric conditions</text>
+<text x="1848" y="1140" class="node-tech" fill="#2563eb">TypeScript rule evaluator</text>
+<text x="1848" y="1166" class="node-line">Boundaries · quantities · units</text>
+</g>
+<g class="node flow-item" data-node="combine" data-flow="decision"><title>Combine results + explain — Code rejects when any applicable condition fails, asks for missing facts when no failure is established, and approves only when applicable checks exist and all pass. Otherwise it returns unresolved. The composer receives the computed verdict and checks; decision text retains verified policy excerpts, and code keeps the verdict authoritative.</title>
+<rect x="1830" y="1250" width="250" height="126" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="1.25"/><rect x="1830" y="1266" width="4" height="94" rx="2" fill="#2563eb"/>
+<text x="1848" y="1280" class="node-title" style="font-size:17px">Combine results + explain</text>
+<text x="1848" y="1305" class="node-tech" fill="#2563eb">TypeScript verdict → LLM</text>
+<text x="1848" y="1331" class="node-line">Failure wins · all must pass</text>
+<text x="1848" y="1352" class="node-line">Missing → ask · unsure → review</text>
+</g>
+<g class="node flow-item" data-node="payload" data-flow="shared"><title>Return response JSON — The API returns one of answered, needs_clarification, unresolved, no_answer, or acknowledged. Calculated decisions can include the verdict and check trace. Transport or provider failures remain errors; they are not disguised as successful answers.</title>
+<rect x="2165" y="990" width="330" height="146" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="1.25"/><rect x="2165" y="1006" width="4" height="114" rx="2" fill="#047857"/>
+<text x="2183" y="1020" class="node-title" style="font-size:19px">Return response JSON</text>
+<text x="2183" y="1045" class="node-tech" fill="#047857">Hono + shared contracts</text>
+<text x="2183" y="1071" class="node-line">status + text + references</text>
+<text x="2183" y="1092" class="node-line">Calculated checks when available</text>
+</g>
+<g class="node flow-item" data-node="render" data-flow="shared"><title>Display evidence and outcome — The client maps verified API data into a small read-only json-render catalog. Zod validates props and a direct fallback preserves the response if validation fails. Citation links reveal page excerpts without replacing the token fragment. The model does not generate UI layout.</title>
+<rect x="2165" y="1250" width="330" height="126" rx="12" fill="#fff" stroke="#cbd5e1" stroke-width="1.25"/><rect x="2165" y="1266" width="4" height="94" rx="2" fill="#047857"/>
+<text x="2183" y="1280" class="node-title" style="font-size:19px">Display evidence and outcome</text>
+<text x="2183" y="1305" class="node-tech" fill="#047857">React + json-render + Zod</text>
+<text x="2183" y="1331" class="node-line">Fixed cards · citations · trace</text>
+</g>
+<g><text x="2130" y="240" font-size="15" font-weight="700" fill="#526176">Document lifecycle</text>
+<text x="2130" y="270" font-size="16" fill="#66778d">processing → ready or failed</text>
+<text x="2130" y="294" font-size="16" fill="#66778d">Only ready PDFs are searched.</text>
+<text x="2130" y="318" font-size="16" fill="#66778d">Failed uploads can be retried.</text>
+<text x="2130" y="342" font-size="16" fill="#66778d">Failed replacements keep the original.</text>
+</g>
+<g><text x="70" y="865" font-size="15" font-weight="700" fill="#526176">TENANT BOUNDARY</text>
+<text x="70" y="895" font-size="16" fill="#66778d">One SQLite database; every document read</text>
+<text x="70" y="919" font-size="16" fill="#66778d">and write is scoped by organization ID.</text>
+<text x="70" y="943" font-size="16" fill="#66778d">Admin session ≠ public assistant token.</text>
+</g>
+<g><text x="70" y="1060" font-size="15" font-weight="700" fill="#526176">ONE GENERATION PROVIDER</text>
+<text x="70" y="1090" font-size="16" fill="#66778d">Ollama (local), Gemini, or OpenRouter</text>
+<text x="70" y="1114" font-size="16" fill="#66778d">Planning · drafting · review · fact matching</text>
+<text x="70" y="1138" font-size="16" fill="#66778d">Selected in .env; no automatic fallback.</text>
+</g>
+<g><text x="70" y="1255" font-size="15" font-weight="700" fill="#526176">SAFE EARLY RETURNS</text>
+<text x="70" y="1285" font-size="16" fill="#66778d">Greeting / thanks / identity → direct reply</text>
+<text x="70" y="1309" font-size="16" fill="#66778d">No retrieved pages → no_answer</text>
+<text x="70" y="1333" font-size="16" fill="#66778d">Unsafe context / policy → unresolved</text>
+</g>
+<g class="flow-item" data-flow="ingest"><rect x="1630.5" y="275" width="69.1" height="24" rx="6" class="label-bg"/><text x="1665" y="292" class="edge-label" text-anchor="middle">publish</text></g>
+<g class="flow-item" data-flow="shared"><rect x="1257.6" y="420" width="134.8" height="24" rx="6" class="label-bg"/><text x="1325" y="437" class="edge-label" text-anchor="middle">read ready pages</text></g>
+<g class="flow-item" data-flow="factual"><rect x="1127.8" y="603" width="54.5" height="24" rx="6" class="label-bg"/><text x="1155" y="620" class="edge-label" text-anchor="middle">facts</text></g>
+<g class="flow-item" data-flow="decision"><rect x="741.2" y="744" width="127.5" height="24" rx="6" class="label-bg"/><text x="805" y="761" class="edge-label" text-anchor="middle">policy decision</text></g>
+<g class="flow-item" data-flow="decision"><rect x="1616.8" y="1032" width="76.4" height="24" rx="6" class="label-bg"/><text x="1655" y="1049" class="edge-label" text-anchor="middle">semantic</text></g>
+<g class="flow-item" data-flow="decision"><rect x="1920.5" y="1013" width="69.1" height="24" rx="6" class="label-bg"/><text x="1955" y="1030" class="edge-label" text-anchor="middle">numeric</text></g>
+<g class="flow-item" data-flow="shared"><rect x="2299.1" y="1182" width="61.8" height="24" rx="6" class="label-bg"/><text x="2330" y="1199" class="edge-label" text-anchor="middle">render</text></g>
+<line x1="48" y1="1440" x2="2512" y2="1440" stroke="#e0e6ef"/>
+<circle cx="74" cy="1472" r="4" fill="#047857"/><text x="88" y="1477" font-size="14" font-weight="700" fill="#047857">ANSWERED</text><text x="70" y="1507" font-size="15" fill="#66778d">Supported claims / computed verdict</text>
+<circle cx="574" cy="1472" r="4" fill="#b45309"/><text x="588" y="1477" font-size="14" font-weight="700" fill="#b45309">CLARIFICATION</text><text x="570" y="1507" font-size="15" fill="#66778d">Missing facts; no established failure</text>
+<circle cx="1074" cy="1472" r="4" fill="#b45309"/><text x="1088" y="1477" font-size="14" font-weight="700" fill="#b45309">UNRESOLVED</text><text x="1070" y="1507" font-size="15" fill="#66778d">Uncertain checks / unsupported policy</text>
+<circle cx="1574" cy="1472" r="4" fill="#64748b"/><text x="1588" y="1477" font-size="14" font-weight="700" fill="#64748b">NO ANSWER</text><text x="1570" y="1507" font-size="15" fill="#66778d">No supported source claims</text>
+<circle cx="2074" cy="1472" r="4" fill="#2563eb"/><text x="2088" y="1477" font-size="14" font-weight="700" fill="#2563eb">ACKNOWLEDGED</text><text x="2070" y="1507" font-size="15" fill="#66778d">Simple greeting / thanks / identity</text>
+</svg></div></div></main>
+<footer><span>Current local implementation · shared SQLite with organization filters</span><span>No extra libraries or network requests to view this page</span></footer>
+<dialog id="detail" aria-labelledby="detail-title"><button class="close" type="button" aria-label="Close details">✕</button><h2 id="detail-title"></h2><div id="detail-tech" class="muted"></div><p id="detail-text"></p><div class="files-label">IMPLEMENTATION</div><div id="detail-files"></div></dialog>
+<script>
+const steps=[{"id": "upload", "x": 70, "y": 240, "w": 250, "h": 124, "title": "Upload organization PDFs", "tech": "React admin dashboard", "lines": ["Manage · replace · delete"], "kind": "app", "flow": "ingest", "detail": "An authenticated administrator uploads a PDF through the dashboard. Documents can be replaced, deleted, or retried after failed processing.", "files": ["client/src/dashboard.tsx", "server/app.ts"], "shape": "rect"}, {"id": "auth", "x": 390, "y": 240, "w": 250, "h": 124, "title": "Authorize administrator", "tech": "Hono + Better Auth", "lines": ["Session + owner/admin role"], "kind": "app", "flow": "ingest", "detail": "The server resolves the signed-in organization and requires owner or admin membership. File operations are scoped by that organization, not by a visitor-supplied organization ID.", "files": ["server/app.ts", "server/store.ts"], "shape": "rect"}, {"id": "validate", "x": 710, "y": 240, "w": 250, "h": 124, "title": "Validate and reserve upload", "tech": "Hono + pdf-lib", "lines": ["10 PDFs · 20 pages · 10 MB"], "kind": "app", "flow": "ingest", "detail": "The server validates bytes, filename, PDF readability, file size, page count, and the organization quota. It reserves a processing record with the original PDF bytes before extraction.", "files": ["server/app.ts", "server/pdf.ts", "shared/contracts.ts"], "shape": "rect"}, {"id": "extract", "x": 1030, "y": 240, "w": 250, "h": 124, "title": "Extract each page", "tech": "Local Firecrawl AnyDoc", "lines": ["PDF → page Markdown"], "kind": "app", "flow": "ingest", "detail": "pdf-lib separates pages and AnyDoc extracts Markdown locally. Text-based PDFs are supported; this application does not add an OCR stage.", "files": ["server/pdf.ts"], "shape": "rect"}, {"id": "chunk", "x": 1350, "y": 240, "w": 250, "h": 124, "title": "Chunk with page context", "tech": "TypeScript", "lines": ["1,100 chars · 130 overlap"], "kind": "app", "flow": "ingest", "detail": "The server splits page text into overlapping passages. Each chunk retains organization ID, document ID, and its original page number.", "files": ["server/pdf.ts", "server/store.ts"], "shape": "rect"}, {"id": "kb", "x": 1730, "y": 230, "w": 350, "h": 144, "title": "Organization knowledge base", "tech": "SQLite + FTS5", "lines": ["PDFs · statuses · page passages", "Atomic publish → ready"], "kind": "store", "flow": "shared", "detail": "One local SQLite database stores all organizations. The publish transaction adds passages, updates the search index through triggers, and marks the document ready. Replacing a ready PDF removes the old version only when the new version publishes successfully.", "files": ["server/store.ts"], "shape": "db"}, {"id": "visitor", "x": 70, "y": 570, "w": 250, "h": 124, "title": "Ask a question", "tech": "React chat / iframe", "lines": ["Organization-branded assistant"], "kind": "app", "flow": "shared", "detail": "The assistant reads its token from the URL fragment and sends it in the request body. Chat history is displayed locally; each backend question is evaluated independently.", "files": ["client/src/chat.tsx", "client/src/api.ts"], "shape": "rect"}, {"id": "token", "x": 350, "y": 570, "w": 250, "h": 124, "title": "Identify organization", "tech": "Node.js / Hono", "lines": ["Token lookup + rate limit"], "kind": "app", "flow": "shared", "detail": "The API hashes and validates the assistant token to resolve the organization, then rate-limits requests for that organization. Simple greetings, thanks, and identity questions are answered directly without retrieval or a model call.", "files": ["server/app.ts"], "shape": "rect"}, {"id": "search", "x": 630, "y": 570, "w": 250, "h": 124, "title": "Retrieve source pages", "tech": "SQLite FTS5", "lines": ["Org-filtered · ready PDFs only"], "kind": "store", "flow": "shared", "detail": "Keyword search uses English stemming, ranks matching chunks, and reconstructs up to six full pages. Both search and policy expansion use organization filters. No matches return no_answer; excessive source context returns unresolved.", "files": ["server/store.ts", "server/ask.ts"], "shape": "rect"}, {"id": "plan", "x": 910, "y": 570, "w": 200, "h": 124, "title": "Route the request", "tech": "LLM + TypeScript guards", "lines": ["Information or decision"], "kind": "llm", "flow": "shared", "detail": "The model classifies the question and selects actual evidence IDs. Application guards keep general and procedural requests factual and route clear personalized eligibility requests through policy checks. The planner does not decide eligibility.", "files": ["server/ask.ts"], "shape": "rect"}, {"id": "draft", "x": 1200, "y": 570, "w": 250, "h": 124, "title": "Draft cited claims", "tech": "Configured LLM", "lines": ["One part per explicit request"], "kind": "llm", "flow": "factual", "detail": "The composer drafts claims for each question part using retrieved pages. Every claim carries a page evidence ID and candidate source quote. Unsupported parts have no claims.", "files": ["server/ask.ts"], "shape": "rect"}, {"id": "review", "x": 1500, "y": 570, "w": 250, "h": 124, "title": "Review drafted claims", "tech": "Separate LLM call", "lines": ["Support · relevance · source"], "kind": "llm", "flow": "factual", "detail": "A second call checks each candidate claim for support, relevance to the question, and relevance of its quote. It can select a corrected contiguous excerpt from the same cited page. This is another model judgment, not a proof of correctness.", "files": ["server/grounding.ts"], "shape": "rect"}, {"id": "ground", "x": 1800, "y": 570, "w": 250, "h": 124, "title": "Validate source quotations", "tech": "TypeScript", "lines": ["Exact source · numbers · units"], "kind": "app", "flow": "factual", "detail": "Code confirms the selected quote exists on the actual page and checks quantities with units and currencies. A numeric paraphrase falls back to the source wording only after semantic checks pass. Supported parts remain visible alongside gaps; inconclusive verification returns unresolved.", "files": ["server/ask.ts", "server/policy.ts", "server/rules.ts"], "shape": "rect"}, {"id": "context", "x": 630, "y": 875, "w": 250, "h": 124, "title": "Expand policy context", "tech": "Org-scoped SQLite", "lines": ["Full documents + named links"], "kind": "store", "flow": "decision", "detail": "The server loads every page of selected policy documents and follows exact document-title cross-references within the same organization. Reading limits stop an oversized policy with unresolved instead of silently truncating it.", "files": ["server/store.ts", "server/ask.ts"], "shape": "rect"}, {"id": "ledger", "x": 930, "y": 875, "w": 250, "h": 124, "title": "Build required-rule ledger", "tech": "TypeScript", "lines": ["Requirements before user facts"], "kind": "app", "flow": "decision", "detail": "English requirement and prohibition heuristics build a fixed ledger before matching visitor facts. The planner cannot remove conditions. Recognized complex structures and oversized or empty ledgers return unresolved; this is not a general-purpose policy compiler.", "files": ["server/policy.ts", "server/ask.ts"], "shape": "rect"}, {"id": "facts", "x": 1230, "y": 875, "w": 250, "h": 124, "title": "Match visitor facts to rules", "tech": "Configured LLM", "lines": ["Exact quotes · all rule IDs"], "kind": "llm", "flow": "decision", "detail": "The schema requires every ledger ID. The model copies exact contiguous visitor excerpts and preserves quantities and units. Missing facts stay missing. A bounded numeric correction can select only numbered excerpts from the real question.", "files": ["server/policy.ts"], "shape": "rect"}, {"id": "scope", "x": 1530, "y": 875, "w": 250, "h": 124, "title": "Check rule applicability", "tech": "Local Laya: System 1", "lines": ["Choice + Boolean confirmation"], "kind": "laya", "flow": "decision", "detail": "Laya Choice classifies whether the source rule category applies. A Boolean applicability check corroborates exclusions. Excluded rules stay in the decision trace; uncertain applicability cannot approve a request. Laya calls are batched and serialized by the adapter.", "files": ["server/policy.ts", "server/models.ts"], "shape": "rect"}, {"id": "semantic", "x": 1530, "y": 1085, "w": 250, "h": 124, "title": "Evaluate semantic conditions", "tech": "Local Laya: Boolean / Noul", "lines": ["Fact coverage · comply · violate"], "kind": "laya", "flow": "decision", "detail": "Boolean checks assess whether the fact addresses the rule, establishes compliance, or establishes an explicit violation. Lack of evidence is not a violation. Conflicting or inconclusive outcomes remain uncertain; scores are thresholds, not calibrated correctness probabilities.", "files": ["server/policy.ts"], "shape": "rect"}, {"id": "numeric", "x": 1830, "y": 1085, "w": 250, "h": 124, "title": "Evaluate numeric conditions", "tech": "TypeScript rule evaluator", "lines": ["Boundaries · quantities · units"], "kind": "app", "flow": "decision", "detail": "Code evaluates supported numeric thresholds, ranges, allowed values, and compatible units or scales. The visitor value must address the rule subject; unsafe interpretation stays uncertain. There are no hardcoded organization-specific policy cases.", "files": ["server/rules.ts", "server/policy.ts"], "shape": "rect"}, {"id": "combine", "x": 1830, "y": 1250, "w": 250, "h": 126, "title": "Combine results + explain", "tech": "TypeScript verdict → LLM", "lines": ["Failure wins · all must pass", "Missing → ask · unsure → review"], "kind": "app", "flow": "decision", "detail": "Code rejects when any applicable condition fails, asks for missing facts when no failure is established, and approves only when applicable checks exist and all pass. Otherwise it returns unresolved. The composer receives the computed verdict and checks; decision text retains verified policy excerpts, and code keeps the verdict authoritative.", "files": ["server/ask.ts"], "shape": "rect"}, {"id": "payload", "x": 2165, "y": 990, "w": 330, "h": 146, "title": "Return response JSON", "tech": "Hono + shared contracts", "lines": ["status + text + references", "Calculated checks when available"], "kind": "result", "flow": "shared", "detail": "The API returns one of answered, needs_clarification, unresolved, no_answer, or acknowledged. Calculated decisions can include the verdict and check trace. Transport or provider failures remain errors; they are not disguised as successful answers.", "files": ["shared/contracts.ts", "server/ask.ts", "server/app.ts"], "shape": "rect"}, {"id": "render", "x": 2165, "y": 1250, "w": 330, "h": 126, "title": "Display evidence and outcome", "tech": "React + json-render + Zod", "lines": ["Fixed cards · citations · trace"], "kind": "result", "flow": "shared", "detail": "The client maps verified API data into a small read-only json-render catalog. Zod validates props and a direct fallback preserves the response if validation fails. Citation links reveal page excerpts without replacing the token fragment. The model does not generate UI layout.", "files": ["client/src/answer.tsx", "client/src/chat.tsx"], "shape": "rect"}];
+const viewport=document.getElementById('viewport'), board=document.getElementById('board'), zoomOutput=document.getElementById('zoom'), detail=document.getElementById('detail');
+board.querySelector('svg').setAttribute('role','group');
+const width=2560,height=1560;let scale=1,offsetX=0,offsetY=0,drag=null,dragged=false,lastFocus=null;
+function apply(){board.style.transform=`translate(${offsetX}px, ${offsetY}px) scale(${scale})`;zoomOutput.textContent=`${Math.round(scale*100)}%`;}
+function fit(){scale=Math.min(viewport.clientWidth/width,viewport.clientHeight/height)*.97;offsetX=(viewport.clientWidth-width*scale)/2;offsetY=(viewport.clientHeight-height*scale)/2;apply();}
+function zoom(factor,x=viewport.clientWidth/2,y=viewport.clientHeight/2){const next=Math.max(.16,Math.min(2.5,scale*factor));offsetX=x-(x-offsetX)*next/scale;offsetY=y-(y-offsetY)*next/scale;scale=next;apply();}
+document.getElementById('fit').addEventListener('click',fit);document.getElementById('in').addEventListener('click',()=>zoom(1.25));document.getElementById('out').addEventListener('click',()=>zoom(.8));
+document.getElementById('fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{document.getElementById('fullscreen').textContent='Use browser fullscreen';}});
+viewport.addEventListener('wheel',event=>{event.preventDefault();const rect=viewport.getBoundingClientRect();zoom(Math.exp(-event.deltaY*.0015),event.clientX-rect.left,event.clientY-rect.top);},{passive:false});
+viewport.addEventListener('pointerdown',event=>{if(event.button!==0)return;drag={id:event.pointerId,x:event.clientX,y:event.clientY,startX:offsetX,startY:offsetY};dragged=false;});
+viewport.addEventListener('pointermove',event=>{if(!drag||drag.id!==event.pointerId)return;const dx=event.clientX-drag.x,dy=event.clientY-drag.y;if(!dragged&&Math.hypot(dx,dy)>4){dragged=true;viewport.setPointerCapture(event.pointerId);viewport.classList.add('dragging');}if(dragged){offsetX=drag.startX+dx;offsetY=drag.startY+dy;apply();}});
+function endDrag(){drag=null;viewport.classList.remove('dragging');}viewport.addEventListener('pointerup',endDrag);viewport.addEventListener('pointercancel',endDrag);
+function showStep(element){const step=steps.find(item=>item.id===element.dataset.node);if(!step)return;lastFocus=element;document.getElementById('detail-title').textContent=step.title;document.getElementById('detail-tech').textContent=step.tech;document.getElementById('detail-text').textContent=step.detail;const files=document.getElementById('detail-files');files.replaceChildren(...step.files.map(path=>{const code=document.createElement('code');code.textContent=path;return code;}));detail.showModal();}
+board.querySelectorAll('[data-node]').forEach(element=>{element.setAttribute('tabindex','0');element.setAttribute('role','button');element.setAttribute('aria-label',`Explain ${steps.find(item=>item.id===element.dataset.node).title}`);element.addEventListener('click',()=>{if(!dragged)showStep(element);});element.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();showStep(element);}});});
+detail.querySelector('.close').addEventListener('click',()=>detail.close());detail.addEventListener('close',()=>lastFocus?.focus({preventScroll:true}));
+document.querySelectorAll('.filters button').forEach(button=>button.addEventListener('click',()=>{board.dataset.mode=button.dataset.mode;document.querySelectorAll('.filters button').forEach(item=>item.setAttribute('aria-pressed',String(item===button)));}));
+document.addEventListener('keydown',event=>{if(detail.open||event.ctrlKey||event.metaKey||event.altKey||event.target.closest('a,button,input,textarea'))return;if(event.key==='+'||event.key==='='){event.preventDefault();zoom(1.25);}if(event.key==='-'){event.preventDefault();zoom(.8);}if(event.key==='0'){event.preventDefault();fit();}});
+new ResizeObserver(fit).observe(viewport);fit();
+</script>
+</body>
+</html>

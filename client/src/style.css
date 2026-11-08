@@ -100,7 +100,10 @@ p { line-height: 1.55; }
 .answer-decision li { padding: .65rem 0; border-bottom: 1px solid #edf1ed; }
 .answer-decision li:last-child { border-bottom: 0; padding-bottom: 0; }
 .answer-decision li > strong { display: block; font-size: .82rem; line-height: 1.45; }
-.check-details { display: flex; flex-wrap: wrap; align-items: baseline; gap: .45rem; margin-top: .35rem; color: var(--muted); font-size: .75rem; }
+.check-details { display: grid; gap: .35rem; margin: .4rem 0 0; color: var(--muted); font-size: .78rem; }
+.check-details > div { display: flex; align-items: baseline; flex-wrap: wrap; gap: .4rem; }
+.check-details dt { font-weight: 600; }
+.check-details dd { margin: 0; }
 .check-result { padding: .1rem .4rem; border-radius: .25rem; background: #edf1f0; }
 .check-result[data-result="Pass"] { background: #e6f3e9; color: #23553c; }
 .check-result[data-result="Fail"] { background: #fbece8; color: #923a2f; }

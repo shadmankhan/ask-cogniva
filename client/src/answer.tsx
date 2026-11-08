@@ -105,13 +105,22 @@ function Sources({ references, prefix }: { references: Reference[]; prefix: stri
 
 function DecisionChecks({ checks }: { checks: DecisionCheck[] }) {
   if (!checks.length) return null;
+  const results: Record<string, string> = {
+    Pass: "Meets this condition", Fail: "Does not meet policy", Missing: "More details needed", Uncertain: "Needs review",
+    "Not applicable": "Not applicable", applies: "Applies to this request", irrelevant: "Does not apply to this request",
+  };
+  const methods: Record<DecisionCheck["method"], string> = {
+    Rule: "Numeric comparison", Choice: "Category selection (Choice)", "Boolean (Noul)": "Condition check (Boolean / Noul)",
+  };
   return <details className="answer-decision">
     <summary>How Cogniva decided <span className="detail-count">{checks.length} checks</span></summary>
     <ul>{checks.map((check, i) => <li key={i}>
       <strong>{check.label}</strong>
-      <div className="check-details"><span className="check-result" data-result={check.result}>{check.result}</span>
-        <span>{check.method}{check.score === undefined ? "" : ` · model output ${check.score.toFixed(2)}`}</span>
-      </div>
+      <dl className="check-details">
+        <div><dt>Result:</dt><dd><span className="check-result" data-result={check.result}>{results[check.result] ?? check.result}</span></dd></div>
+        <div><dt>Method:</dt><dd>{methods[check.method] ?? check.method}</dd></div>
+        {check.score !== undefined && <div><dt>Model output:</dt><dd>{check.score.toFixed(2)}</dd></div>}
+      </dl>
     </li>)}</ul>
   </details>;
 }
